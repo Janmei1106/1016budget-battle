@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#FFF5E8">
+<meta name="description" content="Budget Battle 月底生存挑戰：用 10 個回合練習分配大學生生活費。">
+<title>Budget Battle｜月底生存挑戰</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FF745C'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-size='58'%3E💰%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --cream: #FFF5E8;
+  --coral: #FF745C;
+  --coral-dark: #E4573F;
+  --yellow: #FFC857;
+  --navy: #24435B;
+  --mint: #70C7AE;
+  --ink: #24435B;
+  --muted: #5C7386;
+  --card: #FFFDF9;
+  --line: rgba(36, 67, 91, 0.12);
+  --danger: #B43333;
+  --ok: #1F8A70;
+  --shadow: 0 14px 34px rgba(36, 67, 91, 0.1);
+  --radius: 28px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; max-width: 100%; overflow-x: hidden; }
+body {
+  font-family: "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 8% -8%, #ffd7b0 0, transparent 32%),
+    radial-gradient(circle at 110% 0%, #c9f3e6 0, transparent 28%),
+    var(--cream);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+button, input { font-family: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--navy); outline-offset: 2px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 20px 16px 56px; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.brand { font-weight: 800; letter-spacing: 0.04em; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { font-size: clamp(32px, 6vw, 52px); line-height: 1.15; margin-bottom: 8px; }
+h2 { font-size: 22px; margin-bottom: 8px; }
+.lead { font-size: 18px; max-width: 40rem; }
+.muted { color: var(--muted); }
+.eyebrow { display: inline-block; background: var(--yellow); color: var(--navy); font-weight: 800; border-radius: 999px; padding: 4px 10px; margin-bottom: 10px; }
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; border: 1px solid rgba(255,255,255,.7); }
+.stack { display: grid; gap: 14px; }
+.hero {
+  background:
+    radial-gradient(circle at 92% 18%, rgba(255,200,87,.95), transparent 26%),
+    radial-gradient(circle at 6% 90%, rgba(112,199,174,.85), transparent 24%),
+    var(--card);
+  padding: 28px 22px;
+}
+.btn-row, .chips, .chip-scroll { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-scroll { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; max-width: 100%; }
+.btn, .chip, .choice, .icon-btn {
+  min-height: 48px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  font-weight: 800;
+  font-size: 16px;
+}
+.btn { padding: 12px 18px; }
+.btn-primary { background: var(--coral); color: white; }
+.btn-primary:hover { background: var(--coral-dark); }
+.btn-secondary { background: white; color: var(--navy); border-color: var(--line); }
+.btn-mint { background: var(--mint); color: var(--navy); }
+.btn-yellow { background: var(--yellow); color: var(--navy); }
+.btn-ghost { background: transparent; color: var(--navy); border-color: var(--line); padding: 8px 14px; min-height: 44px; }
+.btn-danger { background: white; color: var(--danger); border-color: #f0c2c2; }
+.btn:disabled, .choice:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-row .btn { flex: 1 1 180px; }
+.field { display: block; font-weight: 800; margin-bottom: 14px; }
+.field span { display: block; margin-bottom: 6px; }
+input[type="text"], input.num {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 16px;
+  border: 2px solid var(--line);
+  padding: 10px 14px;
+  font-size: 16px;
+  color: var(--navy);
+  background: white;
+}
+.help, .err { display: block; font-weight: 700; font-size: 13px; margin-top: 6px; }
+.help { color: var(--muted); }
+.err { color: var(--danger); }
+.chip {
+  background: white;
+  color: var(--navy);
+  border-color: var(--line);
+  padding: 8px 14px;
+}
+.chip[aria-pressed="true"], .avatar-btn[aria-pressed="true"] {
+  background: var(--navy);
+  color: white;
+  border-color: var(--navy);
+}
+.avatar-btn[aria-pressed="true"] { background: #fff1ec; color: var(--navy); border-color: var(--coral); }
+.avatar-grid, .badge-grid, .stat-grid, .summary-grid { display: grid; gap: 10px; }
+.avatar-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.avatar-btn, .badge, .summary, .tx, .hist {
+  background: white;
+  border-radius: 22px;
+  border: 2px solid var(--line);
+}
+.avatar-btn { padding: 8px 6px 12px; text-align: center; }
+.avatar-btn svg { width: min(100%, 120px); height: auto; }
+.badge-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.badge, .summary { padding: 12px; }
+.badge.locked { opacity: 0.55; filter: grayscale(0.85); }
+.badge-icon { font-size: 32px; display: block; }
+.summary-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.summary strong, .money { font-size: clamp(26px, 4vw, 36px); line-height: 1.15; }
+.money.bad, .minus { color: var(--danger); }
+.plus { color: var(--ok); }
+.money-wrap { position: relative; min-height: 48px; }
+.floater {
+  position: absolute;
+  left: 0;
+  top: -6px;
+  font-weight: 900;
+  pointer-events: none;
+  animation: floatUp 1.15s ease forwards;
+}
+@keyframes floatUp {
+  from { opacity: 0; transform: translateY(8px); }
+  20% { opacity: 1; }
+  to { opacity: 0; transform: translateY(-16px); }
+}
+.game-grid, .analysis-grid { display: grid; gap: 14px; }
+.status-line { display: flex; justify-content: space-between; gap: 8px; font-weight: 800; font-size: 14px; }
+.bar { height: 12px; background: rgba(36,67,91,.1); border-radius: 999px; overflow: hidden; }
+.bar > span { display: block; height: 100%; width: 0; border-radius: inherit; transition: width .45s ease; }
+.bar.happy > span { background: var(--yellow); }
+.bar.energy > span { background: var(--mint); }
+.bar.stress > span { background: var(--coral); }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.dots i { width: 14px; height: 14px; border-radius: 50%; background: rgba(36,67,91,.15); display: block; }
+.dots i.on { background: var(--mint); }
+.dots i.now { background: var(--coral); box-shadow: 0 0 0 3px rgba(255,116,92,.25); }
+.warn, .banner {
+  background: #ffe1da;
+  color: #8d2b22;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 800;
+}
+.banner { margin-bottom: 14px; }
+.fate-scene { perspective: 900px; }
+.fate-inner { position: relative; -webkit-transform-style: preserve-3d; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.2,.7,.2,1); min-height: 210px; }
+.fate-inner.flipped { transform: rotateY(180deg); }
+.fate-face { border-radius: 24px; padding: 18px; min-height: 210px; }
+.fate-back, .fate-front { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.card-back, button.card-back {
+  border: 0; width: 100%; text-align: left; font: inherit; display: block; cursor: pointer;
+  border-radius: 24px; padding: 18px; min-height: 220px; color: var(--cream);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.18), transparent 24%),
+    repeating-linear-gradient(45deg, #24435B 0 12px, #31556f 12px 24px);
+}
+.fate-back {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.18), transparent 24%),
+    repeating-linear-gradient(45deg, #24435B 0 12px, #31556f 12px 24px);
+  color: var(--cream);
+  display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+}
+.fate-front { background: white; border: 2px solid var(--line); transform: rotateY(180deg); }
+.back-mark { font-size: 42px; font-weight: 900; }
+.choice {
+  width: 100%;
+  text-align: left;
+  border-radius: 18px;
+  border-color: var(--line);
+  background: white;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.choice small { display: block; color: var(--muted); font-weight: 700; }
+.chart, .donut { width: 100%; height: auto; display: block; }
+.legend { display: grid; gap: 8px; }
+.legend button {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+  background: white;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  padding: 10px;
+  min-height: 48px;
+  color: var(--navy);
+  font-weight: 700;
+}
+.legend button[aria-pressed="true"] { border-color: var(--navy); background: #f3f7fb; }
+.swatch { width: 16px; height: 16px; border-radius: 4px; display: inline-block; }
+.tx, .hist { padding: 12px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+.tx h3, .hist h3 { font-size: 16px; margin-bottom: 4px; }
+.table-wrap { overflow-x: auto; max-width: 100%; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-back {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(36,67,91,.48);
+  display: flex; align-items: flex-end; justify-content: center; padding: 16px;
+}
+.modal { width: min(440px, 100%); }
+.pop {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+  z-index: 35; width: min(360px, calc(100% - 24px));
+  animation: pop .35s ease;
+}
+@keyframes pop { from { transform: translateX(-50%) translateY(12px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); border: 0;
+}
+.footer-note { margin-top: 18px; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 8px; }
+.metrics div { background: white; border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
+.metrics dt { color: var(--muted); font-size: 13px; font-weight: 700; }
+.metrics dd { margin: 2px 0 0; font-size: 18px; font-weight: 800; }
+.tx-meta { margin: 0 0 2px; color: var(--muted); font-size: 13px; }
+.row-gap { display: grid; gap: 8px; }
+tr.active { background: #fff4d6; }
+@media (min-width: 900px) {
+  .game-grid { grid-template-columns: 320px 1fr; align-items: start; }
+  .analysis-grid { grid-template-columns: 340px 1fr; align-items: start; }
+  .modal-back { align-items: center; }
+}
+@media (max-width: 899px) {
+  .game-grid .stack { order: -1; }
+}
+@media (max-width: 520px) {
+  .hist { grid-template-columns: 1fr; align-items: start; }
+  .hist .row-gap { grid-auto-flow: column; justify-content: start; }
+}
+@media (max-width: 420px) {
+  .compare { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="fx-root"></div>
+<noscript><p style="padding:16px">這個遊戲需要啟用 JavaScript 才能遊玩。</p></noscript>
+<script>
+const SAVE_VERSION = 1;
+const STORAGE_KEY = 'budget-battle-save-v1';
+const DEFAULT_SETTINGS = {
+  nickname: '月底求生者',
+  avatar: 'student',
+  monthlyBudget: 9000,
+  fixedExpenses: 0,
+  dailyLiving: 180,
+  savingsGoal: 1000
+};
+const AVATARS = [
+  { id: 'student', name: '圓圓', bio: '背著書包的學生' },
+  { id: 'renter', name: '小租', bio: '剛開始租屋' },
+  { id: 'worker', name: '阿打', bio: '課餘打工中' }
+];
+const EXPENSE_CATEGORIES = ['固定支出', '飲食與日常', '社交娛樂', '學習與工作', '交通', '購物', '突發支出'];
+const ALL_CATEGORIES = EXPENSE_CATEGORIES.concat(['意外收入', '生活費收入']);
+const CATEGORY_ICON = {
+  '固定支出': '🏠',
+  '飲食與日常': '🍱',
+  '社交娛樂': '🎉',
+  '學習與工作': '📚',
+  '交通': '🚇',
+  '購物': '🛍️',
+  '突發支出': '⚡',
+  '意外收入': '🎁',
+  '生活費收入': '💰'
+};
+const CATEGORY_COLORS = {
+  '固定支出': '#24435B',
+  '飲食與日常': '#E6A317',
+  '社交娛樂': '#FF745C',
+  '學習與工作': '#3D7EA6',
+  '交通': '#3E9B84',
+  '購物': '#9B6AD6',
+  '突發支出': '#D64545'
+};
+const ACHIEVEMENTS = [
+  { id: 'survivor', name: '月底生存者', desc: '完成 10 回合', icon: '🏁' },
+  { id: 'saver', name: '存錢小高手', desc: '最終餘額達成儲蓄目標，而且大於 0', icon: '🐷' },
+  { id: 'debtfree', name: '零負債挑戰', desc: '整局餘額都沒有低於 0', icon: '🛡️' },
+  { id: 'frugal', name: '精打細算王', desc: '完成遊戲，且事件額外支出不超過月生活費的 10%', icon: '🧮' },
+  { id: 'social', name: '社交達人', desc: '實際參與的社交娛樂選項累計至少 3 次', icon: '🎉' },
+  { id: 'comeback', name: '危機求生者', desc: '曾經出現負餘額，最後回到 0 以上', icon: '🌈' }
+];
+const ENDINGS = {
+  crisis: { name: '財務危機', emoji: '🌧️', blurb: '這個月的生活費先見底了，後面幾天是靠透支撐過去的。' },
+  master: { name: '存款達人', emoji: '🏆', blurb: '你留下了存款，心情也沒有被這個月犧牲掉。' },
+  toofrugal: { name: '省錢過頭', emoji: '🪙', blurb: '儲蓄目標達到了，但這個月過得挺緊。' },
+  even: { name: '收支平衡', emoji: '⚖️', blurb: '收入和支出剛好打平，沒有負債，也沒有緩衝。' },
+  close: { name: '驚險過關', emoji: '😅', blurb: '你撐過了月底，不過離儲蓄目標還有一段距離。' }
+};
+const MOOD_LABEL = { crisis: '財務危機', anxious: '焦慮', tired: '疲倦', happy: '開心', normal: '平靜' };
+
+const EVENTS = [
+  { id: 'income-tutor', name: '臨時家教', icon: '✏️', category: '意外收入', desc: '學弟今晚被小考嚇到，想請你補兩小時數學。鐘點費不錯，但你已經有點累。', options: [
+    opt('接下這堂家教', 800, -2, -18, 8, '意外收入', '你撐完兩小時，戶頭多了一筆錢，眼睛卻開始發酸。'),
+    opt('把機會讓給別人', 0, 3, 6, -3, '學習與工作', '你留住今晚的體力，也少了一筆可以補洞的收入。')
+  ]},
+  { id: 'income-survey', name: '問卷禮金', icon: '📝', category: '意外收入', desc: '系辦轉來一份二十分鐘問卷，填完可以領禮金。你報告才寫到一半。', options: [
+    opt('填完領禮金', 150, 1, -4, 2, '意外收入', '禮金入帳了，報告只往後挪了一點。'),
+    opt('先關掉分頁', 0, 0, 2, -1, '學習與工作', '你把時間留給報告，這筆小錢就這樣錯過。')
+  ]},
+  { id: 'income-repay', name: '朋友還錢', icon: '🤝', category: '意外收入', desc: '上次幫同學代墊的便當錢，對方今天終於說要轉給你。', options: [
+    opt('收下轉帳', 280, 4, 0, -4, '意外收入', '被拖著的錢回到戶頭，心裡也輕了一點。'),
+    opt('這次先不收', 0, 2, 0, 1, '意外收入', '你先讓這筆錢留在對方那裡，今天的餘額沒有增加。')
+  ]},
+  { id: 'income-job', name: '校園工讀', icon: '📦', category: '意外收入', desc: '活動組缺人搬器材，時薪現結。做兩小時的話，中午的討論課得早退。', options: [
+    opt('做滿兩小時', 700, -1, -16, 6, '意外收入', '器材搬完，現金入袋，肩膀也跟著抗議。'),
+    opt('只幫一小時', 350, 0, -8, 3, '意外收入', '你賺到一半的工讀費，也趕上了討論課的尾聲。'),
+    opt('這次不去', 0, 2, 6, -2, '學習與工作', '你把下午留給自己，工讀的缺就讓別人補上。')
+  ]},
+  { id: 'income-books', name: '舊課本回收', icon: '📚', category: '意外收入', desc: '學長在社團群組收上一屆原文書。價格普通，但書在架上也很佔位置。', options: [
+    opt('賣掉舊書', 180, 2, -2, -2, '意外收入', '書架空出一格，零用錢也多了一小截。'),
+    opt('留到下學期', 0, 0, 0, 0, '學習與工作', '書還在，錢也還是那些。至少下學期不用再找。')
+  ]},
+  { id: 'shock-phone', name: '手機螢幕裂了', icon: '📱', category: '突發支出', desc: '手機從書桌邊滑下去，左上角開出一朵蜘蛛網。明天點名還得用它。', options: [
+    opt('立刻送修', -1800, -6, -8, -12, '突發支出', '螢幕恢復平整，這個月的餘額卻凹了一大塊。'),
+    opt('貼膜先硬撐', -220, -3, -2, 8, '突發支出', '裂痕還在，至少不會割手。你每次解鎖都會看到它。'),
+    opt('改用家裡的舊手機', 0, -8, -2, 12, '突發支出', '舊手機很慢，你省下修理費，也多扛了一些煩躁。')
+  ]},
+  { id: 'shock-tooth', name: '牙痛發作', icon: '🦷', category: '突發支出', desc: '右邊臼齒一吃冰就抽痛。校門口有牙醫，藥局也還開著。', options: [
+    opt('去牙醫就診', -860, -2, -6, -8, '突發支出', '痛源處理掉了，錢包也跟著消腫。'),
+    opt('先買成藥', -180, -4, -2, 6, '突發支出', '痛感壓住一些，你知道這不是長久之計。'),
+    opt('忍到下個月', 0, -8, -6, 14, '突發支出', '你省下診金，吃飯卻開始躲一邊。')
+  ]},
+  { id: 'shock-key', name: '鑰匙鎖在房裡', icon: '🔑', category: '突發支出', desc: '大門一聲關上，鑰匙還在桌上。鎖匠叫得到，室友也可能傍晚才回來。', options: [
+    opt('請鎖匠開門', -320, -2, -4, -6, '突發支出', '門開了，錢包少一截，至少今晚不用在走廊打地鋪。'),
+    opt('在圖書館等到室友', 0, -4, -8, 8, '學習與工作', '你在圖書館耗到天黑，錢沒少，體力先投降。')
+  ]},
+  { id: 'shock-charger', name: '充電器燒了', icon: '🔌', category: '突發支出', desc: '筆電充電器冒出塑膠味，指示燈再也不亮。報告還在電腦裡。', options: [
+    opt('買原廠充電器', -1280, -4, -4, -10, '突發支出', '電腦復活，存款也跟著退燒。'),
+    opt('買相容充電器', -460, -2, -2, -4, '突發支出', '相容款先頂上，你打算下個月再看要不要換原廠。'),
+    opt('先去圖書館用電腦', 0, -6, -8, 10, '學習與工作', '你靠公用電腦交差，自己的筆電暫時成了磚頭。')
+  ]},
+  { id: 'shock-leak', name: '宿舍漏水', icon: '🌧️', category: '突發支出', desc: '颱風夜天花板開始滴水。室友提議分攤一台除濕機，否則只能拿臉盆接。', options: [
+    opt('分攤除濕機', -560, -2, -4, -6, '突發支出', '房間不再滴得到處都是，這筆錢卻不在原本的計畫裡。'),
+    opt('用臉盆先接', 0, -6, -6, 10, '突發支出', '你省下租金，半夜還是得起來倒水。')
+  ]},
+  { id: 'social-hotpot', name: '宿舍火鍋局', icon: '🍲', category: '社交娛樂', desc: '群組突然說火鍋缺一人，訂金要先付。你這個月已經外食好幾次。', options: [
+    opt('參加火鍋', -380, 12, 4, -6, '社交娛樂', '你吃得很滿足，聊天也把壓力散掉一些，聚餐預算卻少了一截。'),
+    opt('只點一杯飲料陪坐', -70, 6, 0, -2, '社交娛樂', '你還是坐在局裡，花費壓得比較低。'),
+    opt('留在房間吃泡麵', 0, -6, 2, 4, '飲食與日常', '你避開這筆聚餐，群組的照片後來還是划過螢幕。')
+  ]},
+  { id: 'social-birthday', name: '同學生日', icon: '🎂', category: '社交娛樂', desc: '同組同學週五生日，大家在約禮物和吃蛋糕的地點。', options: [
+    opt('送一份像樣的禮物', -620, 8, -4, -2, '社交娛樂', '對方很開心，你的購物預算也提前用掉一截。'),
+    opt('手作卡片加一份小吃', -150, 10, -2, -2, '社交娛樂', '禮物不貴，你還是好好出現了。'),
+    opt('傳訊息後自己解決晚餐', 0, -5, 2, 3, '飲食與日常', '你沒出現在蛋糕前面，晚上用家裡的剩菜打發。')
+  ]},
+  { id: 'social-movie', name: '電影之夜', icon: '🎬', category: '社交娛樂', desc: '朋友抓到學生場次，散場後可能還會去吃宵夜。', options: [
+    opt('買票進場', -320, 10, -2, -6, '社交娛樂', '兩小時沒看手機，心情被電影帶走，錢也一起進了售票口。'),
+    opt('改看免費校園放映', -60, 7, -2, -3, '社交娛樂', '椅子比較硬，人和笑點都還在。'),
+    opt('回家早點睡', 0, -3, 8, 2, '飲食與日常', '你錯過片尾彩蛋，隔天早上比較有精神。')
+  ]},
+  { id: 'social-bbq', name: '系上烤肉', icon: '🔥', category: '社交娛樂', desc: '系學會的烤肉缺人分攤炭火和食材，去的話大概會耗掉一個晚上。', options: [
+    opt('參加並分攤食材', -250, 11, -6, -5, '社交娛樂', '你認識了幾個新同學，衣服上也多了炭味。'),
+    opt('只帶一包飲料赴約', -80, 8, -4, -3, '社交娛樂', '你還是在局裡，花費維持在飲料的範圍。'),
+    opt('推掉，留在圖書館', 0, -5, -4, 4, '學習與工作', '報告多寫了兩頁，群組的烤肉照片你滑過去了。')
+  ]},
+  { id: 'social-concert', name: '演唱會邀約', icon: '🎤', category: '社交娛樂', desc: '喜歡的歌手加場，朋友已經在搶票。票價很痛，場外應援則便宜很多。', options: [
+    opt('買票進場', -1580, 14, -10, -8, '社交娛樂', '你唱到沒聲音，這個月的娛樂預算也幾乎唱完。'),
+    opt('只去場外應援', -180, 6, -4, -2, '社交娛樂', '你還是感受到人群，荷包只破一個小口。'),
+    opt('在宿舍聽直播', 0, -2, 2, 2, '飲食與日常', '你把票錢留下，螢幕那端的合唱聲有一點遠。')
+  ]},
+  { id: 'social-board', name: '桌遊店開局', icon: '🎲', category: '社交娛樂', desc: '同學訂了週末的桌遊包廂，一個人不去，局就會少一個角色。', options: [
+    opt('加入包廂', -240, 9, -2, -6, '社交娛樂', '你玩到收店，壓力降了，交通加場地費也付了。'),
+    opt('買一杯飲料觀戰', -60, 4, 0, -2, '社交娛樂', '你沒有缺席，也沒有把整晚的預算押上去。'),
+    opt('說下次再約', 0, -4, 2, 2, '飲食與日常', '局照樣開始，只是少了你的角色。')
+  ]},
+  { id: 'food-breakfast', name: '連續三天的早餐', icon: '🥪', category: '飲食與日常', desc: '基本生活費已經在回合開始扣過。這三天還要額外決定早餐怎麼吃。', options: [
+    opt('每天買超商早餐', -240, 3, 2, -2, '飲食與日常', '早上不用想，三天的額外早餐費也累積起來了。'),
+    opt('自己煮蛋和飯糰', -90, 1, -4, 1, '飲食與日常', '花費比較低，你得早十分鐘起床。'),
+    opt('吃家裡帶來的餅乾', 0, -3, -2, 2, '飲食與日常', '沒有新增支出，上午的胃卻不太滿意。')
+  ]},
+  { id: 'food-nightmarket', name: '夜市繞一圈', icon: '🌃', category: '飲食與日常', desc: '朋友說只是去夜市走走。你知道「走走」通常不會只走路。', options: [
+    opt('吃一輪小吃', -260, 8, 2, -4, '飲食與日常', '蚵仔煎和雞排都很香，額外飲食又多了一筆。'),
+    opt('只吃一份主食', -90, 4, 1, -1, '飲食與日常', '你跟到了局，花費停在一份主食。'),
+    opt('回宿舍吃剩菜', 0, -4, 0, 2, '飲食與日常', '夜市的味道留在群組裡，你的餘額沒有再降。')
+  ]},
+  { id: 'food-cafe', name: '咖啡廳讀書', icon: '☕', category: '飲食與日常', desc: '宿舍太吵，你想找個地方把作業寫完。咖啡廳有最低消費，圖書館則要排隊。', options: [
+    opt('點一杯坐一下午', -160, 5, 2, -4, '飲食與日常', '你寫完作業，也為那個座位付了飲料錢。'),
+    opt('自備水瓶，買最便宜的茶', -70, 2, 1, -1, '飲食與日常', '位子有了，花費壓在一杯茶。'),
+    opt('改去圖書館', 0, -1, -2, 2, '學習與工作', '你沒有消費，冷氣和位子都看人品。')
+  ]},
+  { id: 'food-drink', name: '手搖杯習慣', icon: '🧋', category: '飲食與日常', desc: '這三天每走到校門口，手搖杯的菜單就跳出來。', options: [
+    opt('三天都點一杯', -210, 6, 0, -2, '飲食與日常', '糖分很即時，三杯加起來比你想的還多。'),
+    opt('只准自己喝一杯', -70, 3, 0, 0, '飲食與日常', '你喝到了，也踩了煞車。'),
+    opt('改喝白開水', 0, -2, 0, 2, '飲食與日常', '錢包沒動，嘴裡有一點無聊。')
+  ]},
+  { id: 'food-grocery', name: '超市補貨', icon: '🛒', category: '飲食與日常', desc: '冰箱只剩醬料。可以一次補齊，也可以先買急用的蛋和麵。', options: [
+    opt('一次補齊', -480, 2, -6, -4, '飲食與日常', '冰箱看起來很安心，結帳金額也比預想高。'),
+    opt('只買急需', -190, 0, -3, 0, '飲食與日常', '這三天不會斷糧，其他的下回合再說。'),
+    opt('先用現有的', 0, -2, 0, 3, '飲食與日常', '你沒花錢，菜單變成醬料拌飯。')
+  ]},
+  { id: 'food-snack', name: '深夜宵夜', icon: '🍜', category: '飲食與日常', desc: '十二點後肚子叫了。外送圖示在閃，廚房也還有一包泡麵。', options: [
+    opt('叫外送', -180, 7, -4, -3, '飲食與日常', '熱食送到門口，外送費和餐費一起進了明細。'),
+    opt('煮泡麵', -35, 2, -2, 0, '飲食與日常', '花費很小，鈉含量就不討論了。'),
+    opt('刷牙睡覺', 0, -1, 8, -2, '飲食與日常', '你沒有新增支出，隔天早上比較清醒。')
+  ]},
+  { id: 'study-book', name: '原文書開課', icon: '📖', category: '學習與工作', desc: '老師說考試會從原文書出。新書、二手和圖書館各有代價。', options: [
+    opt('買新書', -980, -2, -2, -6, '學習與工作', '書很新，劃記很自由，存款也少了一大塊。'),
+    opt('買學長的二手', -260, 1, -2, -2, '學習與工作', '有人劃過重點，你花的錢少很多。'),
+    opt('借圖書館', 0, -1, -4, 4, '學習與工作', '你省下書錢，得在閉館前抄完要帶回去的部分。')
+  ]},
+  { id: 'study-cert', name: '證照報名', icon: '🏅', category: '學習與工作', desc: '證照報名只到這週。過了可以增加履歷，不過報名費很硬。', options: [
+    opt('繳報名費', -1680, -2, -6, -4, '學習與工作', '你取得考試資格，這筆費用會佔掉不少彈性。'),
+    opt('先買考古題練手', -240, 0, -2, 2, '學習與工作', '你還沒報名，先確認自己是不是真的想考。'),
+    opt('這次先不考', 0, 2, 2, -2, '學習與工作', '報名費留下了，履歷那一欄也先空著。')
+  ]},
+  { id: 'study-print', name: '報告要印', icon: '🖨️', category: '學習與工作', desc: '小組報告明天要交紙本。列印店有彩印，也有黑白雙面。', options: [
+    opt('彩印成冊', -90, 1, -2, -3, '學習與工作', '報告看起來很完整，費用還在可控範圍。'),
+    opt('黑白雙面', -30, 0, -1, -1, '學習與工作', '內容都在，只是沒有那麼華麗。'),
+    opt('用自己的印表機', 0, -1, -2, 2, '學習與工作', '你沒有新支出，卡紙的風險自己扛。')
+  ]},
+  { id: 'study-night', name: '截止日前夜', icon: '🌙', category: '學習與工作', desc: '報告明天早上八點截止。你可以買提神飲料硬撐，也可以先睡、把風險留給早晨。', options: [
+    opt('買提神飲料硬撐', -60, -6, -28, 16, '學習與工作', '檔案準時交出去，你的體力也幾乎一起交出去。'),
+    opt('請組員分攤，自己小睡', -20, -2, -8, 6, '學習與工作', '你出了一點零食錢換來輪替，睡眠少但沒有通宵。'),
+    opt('先睡，清晨再補', 0, 2, 12, 8, '學習與工作', '體力回來一些，你把壓力留到鬧鐘響的時候。')
+  ]},
+  { id: 'transit-home', name: '返鄉車票', icon: '🚄', category: '交通', desc: '家人問你這週末回不回去。高鐵快，學生票慢，不去則省下一筆。', options: [
+    opt('訂高鐵', -1450, 6, -6, -4, '交通', '你準時到家，交通費也成為這回合最大的一筆。'),
+    opt('買學生票', -680, 2, -10, -1, '交通', '你還是回到家，只是多耗了幾個小時在路上。'),
+    opt('這個月不回家', 0, -8, 4, 6, '交通', '車錢留下了，視訊掛電話的時候有一點安靜。')
+  ]},
+  { id: 'transit-rain', name: '突然下大雨', icon: '🚕', category: '交通', desc: '下課時雨大到看不清對街。你可以叫車、淋一段去公車站，或在騎樓等。', options: [
+    opt('叫計程車', -180, 2, 2, -3, '交通', '你乾著回到住處，這趟車費不在月票裡。'),
+    opt('走到公車站', -40, -2, -4, 1, '交通', '鞋是濕的，花費只多了公車。'),
+    opt('等雨停再走', 0, -3, -2, 2, '交通', '你沒有額外交通費，時間多耗了四十分鐘。')
+  ]},
+  { id: 'transit-scooter', name: '趕一場會議', icon: '🛵', category: '交通', desc: '社團會議提前，走路會遲到。共享機車和捷運都能到，只是價格不同。', options: [
+    opt('騎共享機車', -150, 2, 2, -2, '交通', '你準時到場，解鎖費和騎乘費一起扣掉。'),
+    opt('捷運加走路', -60, -1, -6, 0, '交通', '你踩點進門，花費比機車低。'),
+    opt('提早出門走路', 0, -2, -8, 1, '交通', '沒有交通費，小腿隔天有感覺。')
+  ]},
+  { id: 'transit-card', name: '交通卡餘額不足', icon: '🚲', category: '交通', desc: '悠遊卡過閘門時發出低鳴。你可以一次加足，或只加這幾天的車費。', options: [
+    opt('一次加足', -200, 0, 0, -1, '交通', '這週不用再擔心過不了閘門。'),
+    opt('只加一點點', -80, 0, 0, 0, '交通', '先撐過這三天，之後再看。'),
+    opt('先改用現金', 0, -1, -2, 2, '交通', '你沒有儲值，每次投幣都要翻口袋。')
+  ]},
+  { id: 'shop-headset', name: '耳機一邊沒聲', icon: '🎧', category: '購物', desc: '線上上課時耳機右耳突然安靜。新的很貴，維修需要等待，公用擴音則很尷尬。', options: [
+    opt('買新耳機', -1720, 8, 0, -4, '購物', '聲音回來了，這筆錢足夠吃很多頓。'),
+    opt('送修舊耳機', -360, 2, -2, -1, '購物', '你花較少的錢把舊的救回來，這幾天先靠手機喇叭。'),
+    opt('先用手機擴音', 0, -4, 0, 3, '購物', '沒有新支出，圖書館裡你不太敢開聲音。')
+  ]},
+  { id: 'shop-daily', name: '日用品見底', icon: '🧴', category: '購物', desc: '洗衣精和衛生紙同一週告急。可以一次補齊，也可以先買最缺的。', options: [
+    opt('一次補齊', -230, 1, -2, -2, '購物', '櫃子滿了，這筆日常採買算清楚了。'),
+    opt('只買最缺的', -70, 0, -1, 0, '購物', '你先解決最緊急的那一項。'),
+    opt('再撐一週', 0, -2, 0, 3, '購物', '你沒花錢，洗衣的劑量開始變得很吝嗇。')
+  ]},
+  { id: 'shop-photo', name: '拍貼機前面', icon: '📸', category: '購物', desc: '經過車站拍貼機，朋友已經在掏硬幣。一輪不便宜，貼紙則便宜很多。', options: [
+    opt('和朋友拍一輪', -160, 8, -2, -3, '購物', '四張拍貼洗出來，你們笑得很誇張。'),
+    opt('只買一包貼紙', -60, 2, 0, 0, '購物', '你沒有進機器，還是帶了一點小東西走。'),
+    opt('揮手路過', 0, -1, 0, 1, '飲食與日常', '你跟上了腳步，沒有在機器前停下來。')
+  ]},
+  { id: 'shop-shoes', name: '球鞋打折', icon: '👟', category: '購物', desc: '舊鞋底已經磨平。特價球鞋好看，鞋墊則能再撐一陣子。', options: [
+    opt('買下折扣球鞋', -890, 7, 0, -2, '購物', '走路舒服了，這筆折扣仍然不便宜。'),
+    opt('先換鞋墊', -120, 2, 0, 0, '購物', '你用小錢延長舊鞋的壽命。'),
+    opt('繼續穿舊的', 0, -3, -2, 2, '購物', '錢留著，下雨天還是會滲水。')
+  ]},
+  { id: 'shop-stationery', name: '文具與支架', icon: '🖊️', category: '購物', desc: '筆記型電腦的支架在網路上特價，旁邊還有一排好看的筆。', options: [
+    opt('支架加一堆文具', -260, 3, 0, -2, '購物', '桌面變整齊，結帳清單也比支架本身長。'),
+    opt('只買補充筆芯', -60, 1, 0, 0, '購物', '你只補了真的會用完的東西。'),
+    opt('用現有的', 0, 0, 0, 1, '購物', '特價頁面關掉後，桌子還是原來的樣子。')
+  ]}
+];
+
+function opt(label, money, happiness, energy, stress, category, result) {
+  return { label: label, money: money, happiness: happiness, energy: energy, stress: stress, category: category, result: result };
+}
+function eventById(id) {
+  for (let i = 0; i < EVENTS.length; i++) if (EVENTS[i].id === id) return EVENTS[i];
+  return null;
+}
+function eventTier(event) {
+  let spend = 0;
+  for (let i = 0; i < event.options.length; i++) spend = Math.max(spend, Math.max(0, -event.options[i].money));
+  if (event.category === '意外收入') return 'low';
+  if (spend >= 1000) return 'high';
+  if (spend >= 300) return 'mid';
+  return 'low';
+}
+function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+function sumAmount(list) {
+  let s = 0;
+  for (let i = 0; i < list.length; i++) s += list[i].amount;
+  return s;
+}
+function formatNT(n) {
+  const v = Math.trunc(n);
+  const sign = v < 0 ? '-' : '';
+  const digits = String(Math.abs(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return sign + 'NT$' + digits;
+}
+function formatSignedNT(n) {
+  if (n > 0) return '+' + formatNT(n);
+  return formatNT(n);
+}
+function parseAmount(value) {
+  if (typeof value === 'number') {
+    if (!Number.isInteger(value)) return { ok: false };
+    return { ok: true, value: value };
+  }
+  const s = String(value == null ? '' : value).trim();
+  if (!/^\d+$/.test(s)) return { ok: false };
+  const n = Number(s);
+  if (!Number.isSafeInteger(n)) return { ok: false };
+  return { ok: true, value: n };
+}
+function validateSettings(raw) {
+  const errors = {};
+  const source = raw || {};
+  const nickname = String(source.nickname == null ? '' : source.nickname).trim();
+  const name = nickname || DEFAULT_SETTINGS.nickname;
+  if ([...name].length > 16) errors.nickname = '暱稱請在 16 個字以內';
+  const avatar = AVATARS.some(a => a.id === source.avatar) ? source.avatar : '';
+  if (!avatar) errors.avatar = '請選擇一個角色';
+  const monthly = parseAmount(source.monthlyBudget);
+  if (!monthly.ok || monthly.value < 1 || monthly.value > 100000) errors.monthlyBudget = '月生活費須為 1～100,000 的整數';
+  const monthlyValue = monthly.ok ? monthly.value : null;
+  const fixed = parseAmount(source.fixedExpenses);
+  if (!fixed.ok || fixed.value < 0 || (monthlyValue != null && fixed.value > monthlyValue)) errors.fixedExpenses = '固定支出須為 0 到月生活費之間的整數';
+  const daily = parseAmount(source.dailyLiving);
+  if (!daily.ok || daily.value < 0 || daily.value > 2000) errors.dailyLiving = '每日基本生活費須為 0～2,000 的整數';
+  const goal = parseAmount(source.savingsGoal);
+  if (!goal.ok || goal.value < 0 || (monthlyValue != null && goal.value > monthlyValue)) errors.savingsGoal = '儲蓄目標須為 0 到月生活費之間的整數';
+  const ok = Object.keys(errors).length === 0;
+  return {
+    ok: ok,
+    errors: errors,
+    value: ok ? {
+      nickname: name,
+      avatar: avatar,
+      monthlyBudget: monthly.value,
+      fixedExpenses: fixed.value,
+      dailyLiving: daily.value,
+      savingsGoal: goal.value
+    } : null
+  };
+}
+function draftFromSettings(s) {
+  return {
+    nickname: s.nickname,
+    avatar: s.avatar,
+    monthlyBudget: String(s.monthlyBudget),
+    fixedExpenses: String(s.fixedExpenses),
+    dailyLiving: String(s.dailyLiving),
+    savingsGoal: String(s.savingsGoal)
+  };
+}
+function budgetPreview(s) {
+  const disposable = s.monthlyBudget - s.fixedExpenses;
+  const living30 = s.dailyLiving * 30;
+  return { disposable: disposable, living30: living30, beforeEvents: disposable - living30 };
+}
+function roundDays(round) {
+  return { start: (round - 1) * 3 + 1, end: round * 3 };
+}
+function moodOf(money, happiness, energy, stress) {
+  if (money < 0) return 'crisis';
+  if (stress >= 80) return 'anxious';
+  if (energy < 25) return 'tired';
+  if (happiness >= 80 && stress < 40) return 'happy';
+  return 'normal';
+}
+function drawEventIds(rng) {
+  const random = typeof rng === 'function' ? rng : Math.random;
+  const used = new Set();
+  const picked = [];
+  let highCount = 0;
+  function candidates(cat, allowHigh) {
+    let list = EVENTS.filter(e => e.category === cat && !used.has(e.id));
+    if (!allowHigh || highCount >= 3) {
+      const nonHigh = list.filter(e => eventTier(e) !== 'high');
+      if (nonHigh.length) list = nonHigh;
+    }
+    return list;
+  }
+  function take(cat, allowHigh) {
+    const list = candidates(cat, allowHigh);
+    if (!list.length) throw new Error('題庫不足：' + cat);
+    const event = list[Math.floor(random() * list.length)];
+    used.add(event.id);
+    picked.push(event.id);
+    if (eventTier(event) === 'high') highCount += 1;
+  }
+  take('意外收入', false);
+  take('突發支出', highCount < 3 && random() < 0.75);
+  for (let i = 0; i < 3; i++) take('社交娛樂', highCount < 3 && random() < 0.35);
+  for (let i = 0; i < 2; i++) take('飲食與日常', false);
+  take('學習與工作', highCount < 3 && random() < 0.4);
+  take('交通', highCount < 3 && random() < 0.35);
+  take('購物', highCount < 3 && random() < 0.45);
+  if (!picked.some(id => eventTier(eventById(id)) === 'high')) {
+    const idx = picked.findIndex(id => eventById(id).category === '突發支出');
+    const alts = EVENTS.filter(e => e.category === '突發支出' && eventTier(e) === 'high' && !used.has(e.id));
+    if (idx >= 0 && alts.length) {
+      const event = alts[Math.floor(random() * alts.length)];
+      used.delete(picked[idx]);
+      used.add(event.id);
+      picked[idx] = event.id;
+      highCount += 1;
+    }
+  }
+  for (let i = picked.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    const tmp = picked[i];
+    picked[i] = picked[j];
+    picked[j] = tmp;
+  }
+  return picked;
+}
+function pushTx(game, tx) {
+  game.txSeq += 1;
+  const row = { id: 't' + game.txSeq };
+  const keys = Object.keys(tx);
+  for (let i = 0; i < keys.length; i++) row[keys[i]] = tx[keys[i]];
+  game.transactions.push(row);
+  return row;
+}
+function applyLiving(game) {
+  if (game.roundProgress.livingApplied) return { applied: false, cost: 0 };
+  game.roundProgress.livingApplied = true;
+  const cost = game.settings.dailyLiving * 3;
+  const days = roundDays(game.round);
+  if (cost !== 0) {
+    pushTx(game, {
+      round: game.round,
+      dayStart: days.start,
+      dayEnd: days.end,
+      name: '基本生活費',
+      category: '飲食與日常',
+      amount: -cost,
+      kind: 'living'
+    });
+  }
+  return { applied: true, cost: cost };
+}
+function createGame(settings, rng) {
+  const random = typeof rng === 'function' ? rng : Math.random;
+  const game = {
+    version: 1,
+    id: 'g-' + Date.now().toString(36) + '-' + Math.floor(random() * 1e9).toString(36),
+    status: 'playing',
+    createdAt: new Date().toISOString(),
+    finishedAt: null,
+    endingId: null,
+    settings: {
+      nickname: settings.nickname,
+      avatar: settings.avatar,
+      monthlyBudget: settings.monthlyBudget,
+      fixedExpenses: settings.fixedExpenses,
+      dailyLiving: settings.dailyLiving,
+      savingsGoal: settings.savingsGoal
+    },
+    round: 1,
+    events: drawEventIds(random),
+    roundProgress: { livingApplied: false, revealed: false, choiceIndex: null },
+    happiness: 70,
+    energy: 80,
+    stress: 20,
+    transactions: [],
+    balanceByRound: [],
+    txSeq: 0
+  };
+  pushTx(game, { round: 0, dayStart: null, dayEnd: null, name: '每月生活費入帳', category: '生活費收入', amount: settings.monthlyBudget, kind: 'income' });
+  if (settings.fixedExpenses > 0) {
+    pushTx(game, { round: 0, dayStart: null, dayEnd: null, name: '每月固定支出', category: '固定支出', amount: -settings.fixedExpenses, kind: 'fixed' });
+  }
+  applyLiving(game);
+  return game;
+}
+function revealEvent(game) {
+  if (!game || game.status !== 'playing') return { ok: false, reason: 'not-playing' };
+  if (game.roundProgress.revealed) return { ok: false, reason: 'already' };
+  if (game.roundProgress.choiceIndex !== null) return { ok: false, reason: 'chosen' };
+  if (!game.roundProgress.livingApplied) applyLiving(game);
+  game.roundProgress.revealed = true;
+  return { ok: true };
+}
+function applyChoice(game, index) {
+  if (!game || game.status !== 'playing') return { ok: false, reason: 'not-playing' };
+  if (game.roundProgress.choiceIndex !== null) return { ok: false, reason: 'already' };
+  if (!game.roundProgress.revealed) return { ok: false, reason: 'hidden' };
+  const event = eventById(game.events[game.round - 1]);
+  if (!event || !event.options[index]) return { ok: false, reason: 'bad-option' };
+  const option = event.options[index];
+  game.roundProgress.choiceIndex = index;
+  const days = roundDays(game.round);
+  const balanceBefore = sumAmount(game.transactions);
+  const statBefore = { happiness: game.happiness, energy: game.energy, stress: game.stress };
+  const row = pushTx(game, {
+    round: game.round,
+    dayStart: days.start,
+    dayEnd: days.end,
+    name: event.name + '｜' + option.label,
+    category: option.category,
+    amount: option.money,
+    kind: 'event',
+    eventId: event.id,
+    result: option.result
+  });
+  game.happiness = clamp(game.happiness + option.happiness, 0, 100);
+  game.energy = clamp(game.energy + option.energy, 0, 100);
+  game.stress = clamp(game.stress + option.stress, 0, 100);
+  row.statBefore = statBefore;
+  row.statAfter = { happiness: game.happiness, energy: game.energy, stress: game.stress };
+  row.balanceBefore = balanceBefore;
+  if (game.balanceByRound.length < game.round) game.balanceByRound.push(sumAmount(game.transactions));
+  return { ok: true, option: option, event: event };
+}
+function advanceRound(game) {
+  if (!game || game.status !== 'playing') return { ok: false, reason: 'not-playing' };
+  if (game.roundProgress.choiceIndex === null) return { ok: false, reason: 'need-choice' };
+  if (game.round >= 10) return { ok: false, reason: 'last-round' };
+  game.round += 1;
+  game.roundProgress = { livingApplied: false, revealed: false, choiceIndex: null };
+  const living = applyLiving(game);
+  return { ok: true, livingCost: living.cost };
+}
+function replayEverNegative(tx) {
+  let m = 0;
+  for (let i = 0; i < tx.length; i++) {
+    m += tx[i].amount;
+    if (m < 0) return true;
+  }
+  return false;
+}
+function savingsRate(balance, goal) {
+  if (goal <= 0) return balance >= 0 ? 100 : 0;
+  if (balance <= 0) return 0;
+  return Math.round((balance / goal) * 100);
+}
+function computeStats(game) {
+  const tx = game.transactions;
+  let totalIncome = 0;
+  let totalExpense = 0;
+  let fixedTotal = 0;
+  let livingTotal = 0;
+  let eventExpense = 0;
+  let eventIncome = 0;
+  const cat = {};
+  for (let i = 0; i < tx.length; i++) {
+    const t = tx[i];
+    if (t.amount > 0) totalIncome += t.amount;
+    if (t.amount < 0) totalExpense += -t.amount;
+    if (t.kind === 'fixed' && t.amount < 0) fixedTotal += -t.amount;
+    if (t.kind === 'living' && t.amount < 0) livingTotal += -t.amount;
+    if (t.kind === 'event' && t.amount < 0) eventExpense += -t.amount;
+    if (t.kind === 'event' && t.amount > 0) eventIncome += t.amount;
+    if (t.amount < 0) cat[t.category] = (cat[t.category] || 0) + (-t.amount);
+  }
+  const categories = Object.keys(cat).map(name => ({ name: name, amount: cat[name] }));
+  categories.sort((a, b) => b.amount - a.amount || EXPENSE_CATEGORIES.indexOf(a.name) - EXPENSE_CATEGORIES.indexOf(b.name));
+  const maxAmount = categories.length ? categories[0].amount : 0;
+  const maxCategories = categories.filter(c => c.amount === maxAmount).map(c => c.name);
+  const finalBalance = sumAmount(tx);
+  const goal = game.settings.savingsGoal;
+  return {
+    monthlyBudget: game.settings.monthlyBudget,
+    fixedTotal: fixedTotal,
+    livingTotal: livingTotal,
+    eventExpense: eventExpense,
+    eventIncome: eventIncome,
+    totalIncome: totalIncome,
+    totalExpense: totalExpense,
+    finalBalance: finalBalance,
+    savingsRate: savingsRate(finalBalance, goal),
+    goalMet: finalBalance >= goal,
+    maxCategories: maxCategories,
+    categories: categories,
+    startBalance: sumAmount(tx.filter(t => t.round === 0)),
+    balanceByRound: game.balanceByRound.slice(),
+    everNegative: replayEverNegative(tx),
+    socialCount: tx.filter(t => t.kind === 'event' && t.category === '社交娛樂').length
+  };
+}
+function determineEnding(game, stats) {
+  const balance = stats.finalBalance;
+  const goal = game.settings.savingsGoal;
+  const happy = game.happiness;
+  const met = balance >= goal;
+  if (balance < 0) return 'crisis';
+  if (balance > 0 && met && happy >= 50) return 'master';
+  if (met && happy < 50) return 'toofrugal';
+  if (goal === 0 && balance === 0) return 'even';
+  if (balance >= 0 && !met) return 'close';
+  return 'close';
+}
+function evaluateAchievements(game, stats) {
+  const ids = [];
+  const done = game.balanceByRound.length >= 10;
+  if (done) ids.push('survivor');
+  if (done && stats.finalBalance > 0 && stats.finalBalance >= game.settings.savingsGoal) ids.push('saver');
+  if (done && !stats.everNegative) ids.push('debtfree');
+  if (done && stats.eventExpense * 10 <= game.settings.monthlyBudget) ids.push('frugal');
+  if (stats.socialCount >= 3) ids.push('social');
+  if (done && stats.everNegative && stats.finalBalance >= 0) ids.push('comeback');
+  return ids;
+}
+function maxCategoryText(stats) {
+  if (!stats.maxCategories.length) return '無';
+  if (stats.maxCategories.length === 1) return stats.maxCategories[0];
+  return stats.maxCategories.join('、') + '（同額）';
+}
+function behaviorText(stats) {
+  if (stats.totalExpense <= 0) return '這局沒有產生支出，餘額變化主要來自收入。';
+  const names = stats.maxCategories.join('、');
+  const amount = stats.categories[0].amount;
+  const share = Math.round(amount / stats.totalExpense * 100);
+  const tie = stats.maxCategories.length > 1 ? '各 ' : '';
+  return '支出最高的是「' + names + '」' + tie + formatNT(amount) + '，約佔總支出 ' + share + '%。事件額外支出 ' + formatNT(stats.eventExpense) + '，意外收入 ' + formatNT(stats.eventIncome) + '。';
+}
+function goalText(stats, settings) {
+  const met = stats.finalBalance >= settings.savingsGoal;
+  if (settings.savingsGoal === 0 && stats.finalBalance === 0) return '儲蓄目標為 NT$0，最終餘額也是 NT$0，剛好打平。';
+  return '儲蓄目標 ' + formatNT(settings.savingsGoal) + '，達成率 ' + stats.savingsRate + '%，' + (met ? '已達成' : '尚未達成') + '。';
+}
+function buildSuggestion(endingId, stats, settings) {
+  const top = stats.maxCategories[0];
+  if (endingId === 'crisis') {
+    if (top === '固定支出') return '下個月先把房租、門號這類固定支出從生活費扣掉，確認剩下的錢還夠 30 天基本開銷，再安排其他消費。';
+    return '下個月先把固定支出和 30 天基本生活費加總，確認扣完仍是正數，再決定能不能參加聚餐或臨時購物。';
+  }
+  if (endingId === 'toofrugal') return '儲蓄達標了，但快樂值低於 50。下個月可以先預留 NT$300 到 NT$500，給低消費的聚餐或散步，不要把社交全部砍掉。';
+  if (endingId === 'even') return '這個月剛好打平，中間沒有緩衝。下次把儲蓄目標設成月生活費的大約 5%，先留一筆遇到維修也不用借錢的預備金。';
+  if (endingId === 'master') return '你同時留下存款和心情。之後可以維持先撥出儲蓄目標、再看娛樂支出的順序，遇到折扣也先問自己這週用不用得到。';
+  const gap = Math.max(0, settings.savingsGoal - stats.finalBalance);
+  if (top) return '距離儲蓄目標還差 ' + formatNT(gap) + '。這局支出最高的是「' + top + '」，下次先幫這個分類定一個上限，達標前不再加碼。';
+  return '雖然沒有負債，但儲蓄目標還沒達成。下次每個事件都先看金額較低的選項，把差額留到月底。';
+}
+function makeHistoryRecord(game, stats, endingId, achievements) {
+  return {
+    id: game.id,
+    finishedAt: game.finishedAt,
+    settings: {
+      nickname: game.settings.nickname,
+      avatar: game.settings.avatar,
+      monthlyBudget: game.settings.monthlyBudget,
+      fixedExpenses: game.settings.fixedExpenses,
+      dailyLiving: game.settings.dailyLiving,
+      savingsGoal: game.settings.savingsGoal
+    },
+    finalBalance: stats.finalBalance,
+    endingId: endingId,
+    achievements: achievements.slice(),
+    categoryExpenses: stats.categories.reduce((acc, c) => { acc[c.name] = c.amount; return acc; }, {}),
+    balanceByRound: game.balanceByRound.slice(),
+    transactions: game.transactions.map(t => Object.assign({}, t)),
+    happiness: game.happiness,
+    energy: game.energy,
+    stress: game.stress,
+    totalIncome: stats.totalIncome,
+    totalExpense: stats.totalExpense,
+    savingsRate: stats.savingsRate,
+    goalMet: stats.finalBalance >= game.settings.savingsGoal
+  };
+}
+function pushHistory(history, record) {
+  const next = [record].concat(history.filter(h => h.id !== record.id));
+  return next.slice(0, 20);
+}
+function freshState() {
+  return {
+    version: SAVE_VERSION,
+    settings: {
+      nickname: DEFAULT_SETTINGS.nickname,
+      avatar: DEFAULT_SETTINGS.avatar,
+      monthlyBudget: DEFAULT_SETTINGS.monthlyBudget,
+      fixedExpenses: DEFAULT_SETTINGS.fixedExpenses,
+      dailyLiving: DEFAULT_SETTINGS.dailyLiving,
+      savingsGoal: DEFAULT_SETTINGS.savingsGoal
+    },
+    draft: draftFromSettings(DEFAULT_SETTINGS),
+    unlocked: [],
+    currentGame: null,
+    history: [],
+    ui: { screen: 'home', analysisReturn: 'home', historyId: null, category: 'all', round: 'all' }
+  };
+}
+function isHistoryRecord(h) {
+  if (!h || typeof h !== 'object') return false;
+  if (typeof h.id !== 'string' || !h.id) return false;
+  if (typeof h.finishedAt !== 'string') return false;
+  if (!h.settings || !validateSettings(h.settings).ok) return false;
+  if (!Array.isArray(h.transactions) || !Array.isArray(h.balanceByRound) || h.balanceByRound.length !== 10) return false;
+  if (!h.balanceByRound.every(n => Number.isInteger(n))) return false;
+  if (!ENDINGS[h.endingId]) return false;
+  if (!Array.isArray(h.achievements) || !h.achievements.every(id => ACHIEVEMENTS.some(a => a.id === id))) return false;
+  if (!h.transactions.every(t => t && Number.isInteger(t.amount) && typeof t.name === 'string' && typeof t.category === 'string' && typeof t.kind === 'string')) return false;
+  if (!Number.isInteger(h.finalBalance) || !Number.isInteger(h.totalIncome) || !Number.isInteger(h.totalExpense)) return false;
+  if (!Number.isInteger(h.happiness) || h.happiness < 0 || h.happiness > 100) return false;
+  return true;
+}
+function isGame(g) {
+  if (!g || typeof g !== 'object') return false;
+  if (g.status !== 'playing' && g.status !== 'finished') return false;
+  if (!Array.isArray(g.events) || g.events.length !== 10 || new Set(g.events).size !== 10) return false;
+  if (!g.events.every(id => !!eventById(id))) return false;
+  if (!Array.isArray(g.transactions) || !Array.isArray(g.balanceByRound)) return false;
+  if (!Number.isInteger(g.round) || g.round < 1 || g.round > 10) return false;
+  const p = g.roundProgress;
+  if (!p || typeof p.livingApplied !== 'boolean' || typeof p.revealed !== 'boolean') return false;
+  if (!(p.choiceIndex === null || Number.isInteger(p.choiceIndex))) return false;
+  if (!g.settings || !validateSettings(g.settings).ok) return false;
+  if (!g.transactions.every(t => t && Number.isInteger(t.amount) && typeof t.category === 'string' && typeof t.kind === 'string' && typeof t.name === 'string')) return false;
+  if (!['happiness', 'energy', 'stress'].every(k => Number.isInteger(g[k]) && g[k] >= 0 && g[k] <= 100)) return false;
+  if (p.choiceIndex === null) {
+    if (g.balanceByRound.length !== g.round - 1) return false;
+  } else {
+    const event = eventById(g.events[g.round - 1]);
+    if (!event || p.choiceIndex < 0 || p.choiceIndex >= event.options.length) return false;
+    if (!p.revealed) return false;
+    if (g.balanceByRound.length !== g.round) return false;
+  }
+  if (g.status === 'finished' && g.balanceByRound.length < 10) return false;
+  return true;
+}
+function stabilizeUi(state) {
+  const screens = ['home', 'help', 'devlog', 'setup', 'game', 'analysis', 'ending', 'history'];
+  const ui = state.ui || {};
+  state.ui = ui;
+  if (!screens.includes(ui.screen)) ui.screen = 'home';
+  if (typeof ui.category !== 'string') ui.category = 'all';
+  if (typeof ui.round !== 'string') ui.round = 'all';
+  if (!['home', 'game', 'ending', 'history'].includes(ui.analysisReturn)) ui.analysisReturn = 'home';
+  const game = state.currentGame;
+  if ((ui.screen === 'game' || ui.screen === 'ending') && !game) ui.screen = 'home';
+  if (ui.screen === 'ending' && game && game.status !== 'finished') ui.screen = 'game';
+  if (ui.screen === 'game' && game && game.status === 'finished') ui.screen = 'ending';
+  if (ui.historyId && !state.history.some(h => h.id === ui.historyId)) ui.historyId = null;
+  if (ui.screen === 'analysis') {
+    const hasLive = !!(game && (ui.analysisReturn === 'game' || ui.analysisReturn === 'ending'));
+    const hasHist = ui.analysisReturn === 'history' && !!ui.historyId;
+    if (!hasLive && !hasHist) ui.screen = 'home';
+  }
+  return state;
+}
+function normalizeSave(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data) || data.version !== SAVE_VERSION) return { ok: false };
+  if (!Array.isArray(data.unlocked) || !Array.isArray(data.history)) return { ok: false };
+  const state = freshState();
+  let notice = '';
+  state.unlocked = data.unlocked.filter(id => ACHIEVEMENTS.some(a => a.id === id));
+  if (data.settings && validateSettings(data.settings).ok) state.settings = validateSettings(data.settings).value;
+  if (data.draft && typeof data.draft === 'object') {
+    state.draft = {
+      nickname: String(data.draft.nickname == null ? state.settings.nickname : data.draft.nickname),
+      avatar: AVATARS.some(a => a.id === data.draft.avatar) ? data.draft.avatar : state.settings.avatar,
+      monthlyBudget: String(data.draft.monthlyBudget == null ? state.settings.monthlyBudget : data.draft.monthlyBudget),
+      fixedExpenses: String(data.draft.fixedExpenses == null ? state.settings.fixedExpenses : data.draft.fixedExpenses),
+      dailyLiving: String(data.draft.dailyLiving == null ? state.settings.dailyLiving : data.draft.dailyLiving),
+      savingsGoal: String(data.draft.savingsGoal == null ? state.settings.savingsGoal : data.draft.savingsGoal)
+    };
+  } else state.draft = draftFromSettings(state.settings);
+  const kept = [];
+  let dropped = 0;
+  for (let i = 0; i < data.history.length && kept.length < 20; i++) {
+    if (isHistoryRecord(data.history[i])) kept.push(data.history[i]);
+    else dropped += 1;
+  }
+  state.history = kept;
+  if (dropped) notice = '有部分歷史紀錄無法讀取，已略過。其餘資料還在，你可以直接繼續。';
+  if (data.currentGame != null) {
+    if (isGame(data.currentGame)) state.currentGame = data.currentGame;
+    else notice = (notice ? notice + ' ' : '') + '進行中的挑戰資料不完整，已先拿掉這局。你可以重新開始。';
+  }
+  const ui = data.ui && typeof data.ui === 'object' ? data.ui : {};
+  state.ui = {
+    screen: ui.screen,
+    analysisReturn: ui.analysisReturn,
+    historyId: typeof ui.historyId === 'string' ? ui.historyId : null,
+    category: ui.category,
+    round: ui.round == null ? 'all' : String(ui.round)
+  };
+  stabilizeUi(state);
+  return { ok: true, state: state, notice: notice };
+}
+
+globalThis.BB = {
+  EVENTS, ACHIEVEMENTS, ENDINGS, EXPENSE_CATEGORIES, ALL_CATEGORIES, DEFAULT_SETTINGS,
+  parseAmount, validateSettings, eventTier, drawEventIds, createGame, revealEvent,
+  applyChoice, applyLiving, advanceRound, computeStats, determineEnding, evaluateAchievements,
+  moodOf, savingsRate, formatNT, behaviorText, buildSuggestion, goalText, pushHistory,
+  isGame, isHistoryRecord, normalizeSave, freshState, roundDays, budgetPreview, makeHistoryRecord,
+  stabilizeUi, eventById
+};
+/*__UI__*/
+const DEVLOG = [
+  {
+    phase: '第一次',
+    title: '核心回合與帳目',
+    problem: '檢查選項時發現，拍貼那題的參加選項被標成社交娛樂，朋友還錢的「這次不收」也被標成社交。這樣圓環圖和社交達人會把沒有實際社交花費的選擇算進去。',
+    change: '選項的分類改成這次真正發生的消費或收入。抽卡固定成 1 張意外收入、1 張突發支出、3 張社交，其餘分配到飲食、學習、交通和購物，高額事件每局限 1 到 3 張。',
+    check: '35 張事件都通過格式檢查。200 次抽卡沒有重複，分類張數也對。預設 9,000 元開局扣掉 3 天基本生活費後是 8,460 元；十個回合只產生 10 筆基本生活費。連按同一個選項不會再扣第二次。12 組結局例子的優先順序與規格一致。'
+  },
+  {
+    phase: '第二次',
+    title: '翻牌、表情與圖表',
+    problem: '只有一個支出分類時，圓環若用整整一圈的虛線，畫面可能變成空白。進行中的餘額若標成「最終餘額」，也會跟還沒畫上折線的這一回合搞混。手機上的歷史卡片則把「成就」兩個字拆到按鈕旁邊。',
+    change: '單一分類改畫實心圓環，旁邊仍列出名稱、金額和百分比。進行中改稱目前餘額，折線只放起始和已經選完的回合。窄螢幕改成先看到命運卡，歷史操作改放到文字下面。',
+    check: '瀏覽器裡飲食與日常 NT$540 畫出完整圓環，圖例寫著 100%。翻開命運後才出現選項，選完按鈕就消失。360px 寬沒有橫向溢出。第 10–12 天餘額變成 -NT$400 時，表情換成財務危機。'
+  },
+  {
+    phase: '第三次',
+    title: '存檔、重刷與歷史',
+    problem: '若重新整理後重抽事件或再扣一次基本生活費，後面的帳會全部失真。存檔若是壞掉的文字，也不該讓整個頁面沒有按鈕。',
+    change: '事件順序、已扣生活費、已翻牌和已選擇都立刻寫進 localStorage，並帶版本號。讀到壞掉或版本不合的存檔時，頁面回到可玩狀態並說明原因，不用壞資料繼續算。',
+    check: '第一回合選完「提早出門走路」後重新整理，還是同一張趕一場會議，餘額停在 NT$8,460。緊預算打完是財務危機，最終 -NT$4,000，總支出 NT$10,000，與固定支出加基本生活費一致。最近兩局比較顯示少了 NT$7,600。刪除時按取消，紀錄還在。把存檔改成無法解析的文字後，首頁仍可重新開始。'
+  }
+];
+const app = document.getElementById('app');
+const modalRoot = document.getElementById('modal-root');
+const fxRoot = document.getElementById('fx-root');
+let sessionNotice = '';
+let state = freshState();
+const fx = { float: null, animateFlip: false, hideOptions: false, flipToken: 0 };
+const badges = { queue: [], current: null };
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+function signed(n) { return n > 0 ? '+' + n : String(n); }
+function moneyClass(n) { return n > 0 ? 'plus' : n < 0 ? 'minus' : ''; }
+function prefersReducedMotion() {
+  return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+function formatTime(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '時間未知';
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '/' + p(d.getMonth() + 1) + '/' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function percentText(part, total) {
+  if (!total) return '0%';
+  const value = Math.round((part / total) * 1000) / 10;
+  return (Math.round(value) === value ? String(value) : value.toFixed(1)) + '%';
+}
+function resetMotion() {
+  fx.flipToken += 1;
+  fx.hideOptions = false;
+  fx.animateFlip = false;
+}
+function say(text) {
+  const live = document.getElementById('live');
+  if (live) live.textContent = text;
+}
+function loadStored() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { state: freshState(), notice: '' };
+    let data;
+    try { data = JSON.parse(raw); }
+    catch (err) { return { state: freshState(), notice: '存檔無法解析。你可以直接重新開始，這次不會沿用壞掉的資料。' }; }
+    const norm = normalizeSave(data);
+    if (!norm.ok) return { state: freshState(), notice: '存檔版本無法使用或資料已損壞。你可以直接重新開始。' };
+    return norm;
+  } catch (err) {
+    return { state: freshState(), notice: '這個瀏覽器目前無法讀取存檔。這次遊玩可能不會被保存。' };
+  }
+}
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    return true;
+  } catch (err) {
+    sessionNotice = '這個瀏覽器無法保存進度，重新整理後會回到開始。';
+    return false;
+  }
+}
+function askConfirm(title, message, okText, cancelText) {
+  return new Promise(resolve => {
+    modalRoot.innerHTML = `<div class="modal-back"><div class="card modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><h2 id="modal-title">${esc(title)}</h2><p>${esc(message)}</p><div class="btn-row"><button type="button" class="btn btn-secondary" id="modal-cancel">${esc(cancelText)}</button><button type="button" class="btn btn-primary" id="modal-ok">${esc(okText)}</button></div></div></div>`;
+    const finish = value => { modalRoot.innerHTML = ''; resolve(value); };
+    document.getElementById('modal-ok').onclick = () => finish(true);
+    document.getElementById('modal-cancel').onclick = () => finish(false);
+    modalRoot.querySelector('.modal-back').addEventListener('click', e => { if (e.target === e.currentTarget) finish(false); });
+  });
+}
+function enqueueBadges(ids) {
+  ids.forEach(id => {
+    if (badges.queue.indexOf(id) === -1 && badges.current !== id) badges.queue.push(id);
+  });
+  pumpBadges();
+}
+function pumpBadges() {
+  if (badges.current) return;
+  badges.current = badges.queue.shift() || null;
+  paintBadge();
+}
+function paintBadge() {
+  if (!badges.current) { fxRoot.innerHTML = ''; return; }
+  const item = ACHIEVEMENTS.find(a => a.id === badges.current);
+  fxRoot.innerHTML = `<div class="pop card" role="status"><p class="eyebrow">成就解鎖</p><span class="badge-icon">${item.icon}</span><h2>${esc(item.name)}</h2><p>${esc(item.desc)}</p><button type="button" class="btn btn-yellow" id="badge-ok">收下</button></div>`;
+  document.getElementById('badge-ok').onclick = () => { badges.current = null; pumpBadges(); };
+}
+function newlyUnlocked(game) {
+  const ids = evaluateAchievements(game, computeStats(game));
+  const fresh = ids.filter(id => state.unlocked.indexOf(id) === -1);
+  fresh.forEach(id => state.unlocked.push(id));
+  return fresh;
+}
+function faceParts(mood) {
+  if (mood === 'happy') return '<path d="M62 74 Q68 66 74 74" fill="none" stroke="#24435B" stroke-width="3" stroke-linecap="round"/><path d="M86 74 Q92 66 98 74" fill="none" stroke="#24435B" stroke-width="3" stroke-linecap="round"/><path d="M64 94 Q80 112 96 94" fill="none" stroke="#24435B" stroke-width="3" stroke-linecap="round"/><circle cx="58" cy="86" r="4" fill="#FFB3A7"/><circle cx="102" cy="86" r="4" fill="#FFB3A7"/>';
+  if (mood === 'tired') return '<path d="M62 78 H74" stroke="#24435B" stroke-width="3" stroke-linecap="round"/><path d="M86 78 H98" stroke="#24435B" stroke-width="3" stroke-linecap="round"/><path d="M70 98 H90" stroke="#24435B" stroke-width="3" stroke-linecap="round"/><text x="112" y="58" font-size="16" fill="#24435B">z</text>';
+  if (mood === 'anxious') return '<circle cx="68" cy="76" r="6" fill="#fff" stroke="#24435B" stroke-width="3"/><circle cx="92" cy="76" r="6" fill="#fff" stroke="#24435B" stroke-width="3"/><circle cx="69" cy="77" r="2" fill="#24435B"/><circle cx="93" cy="77" r="2" fill="#24435B"/><path d="M66 98 Q74 90 80 100 Q86 90 94 98" fill="none" stroke="#24435B" stroke-width="3"/><path d="M108 66 q8 12 0 18" fill="#8FD3EA" stroke="#24435B" stroke-width="2"/>';
+  if (mood === 'crisis') return '<path d="M62 70 L74 82 M74 70 L62 82" stroke="#24435B" stroke-width="3" stroke-linecap="round"/><path d="M86 70 L98 82 M98 70 L86 82" stroke="#24435B" stroke-width="3" stroke-linecap="round"/><path d="M66 102 Q80 88 94 102" fill="none" stroke="#24435B" stroke-width="3"/><path d="M108 66 q8 12 0 18" fill="#8FD3EA" stroke="#24435B" stroke-width="2"/>';
+  return '<circle cx="68" cy="78" r="4" fill="#24435B"/><circle cx="92" cy="78" r="4" fill="#24435B"/><path d="M68 96 Q80 106 92 96" fill="none" stroke="#24435B" stroke-width="3" stroke-linecap="round"/>';
+}
+function avatarSVG(type, mood) {
+  const avatar = AVATARS.find(a => a.id === type) || AVATARS[0];
+  const cloth = type === 'worker' ? '#FF745C' : type === 'renter' ? '#70C7AE' : '#24435B';
+  const skin = mood === 'crisis' ? '#F4E6D8' : '#FFD8B8';
+  let hat = '<path d="M52 68 Q66 46 80 54 Q96 44 110 68" fill="#24435B"/>';
+  if (type === 'renter') hat = '<path d="M46 62 Q80 34 114 62 Q104 50 80 50 Q56 50 46 62" fill="#24435B"/>';
+  if (type === 'worker') hat = '<path d="M44 66 Q80 42 116 66 L122 74 L38 74 Z" fill="#FFC857" stroke="#24435B" stroke-width="3"/>';
+  let prop = '';
+  if (type === 'student') prop = '<path d="M46 124 L34 156 L56 146 Z" fill="#FFC857" stroke="#24435B" stroke-width="3"/>';
+  if (type === 'renter') prop = '<rect x="112" y="136" width="14" height="16" rx="2" fill="#CDEFE4" stroke="#24435B" stroke-width="3"/><circle cx="119" cy="132" r="7" fill="#3E9B84" stroke="#24435B" stroke-width="3"/>';
+  if (type === 'worker') prop = '<rect x="108" y="126" width="16" height="24" rx="4" fill="#FFC857" stroke="#24435B" stroke-width="3"/>';
+  const apron = type === 'worker' ? '<path d="M66 118 H94 V148 H66 Z" fill="#FFF5E8" stroke="#24435B" stroke-width="3"/>' : '';
+  return `<svg viewBox="0 0 160 180" role="img" aria-label="${esc(avatar.name)}，${esc(MOOD_LABEL[mood])}"><ellipse cx="80" cy="168" rx="34" ry="7" fill="rgba(36,67,91,.12)"/><path d="M52 116 Q46 164 80 166 Q114 164 108 116 Q80 106 52 116" fill="${cloth}" stroke="#24435B" stroke-width="3"/>${apron}<circle cx="80" cy="76" r="34" fill="${skin}" stroke="#24435B" stroke-width="3"/>${hat}${faceParts(mood)}${prop}</svg>`;
+}
+function renderBadgeGrid(ids) {
+  return '<div class="badge-grid">' + ACHIEVEMENTS.map(a => {
+    const on = ids.indexOf(a.id) !== -1;
+    return `<article class="badge${on ? '' : ' locked'}"><span class="badge-icon">${a.icon}</span><strong>${esc(a.name)}</strong><p class="muted">${esc(a.desc)}</p><p>${on ? '已解鎖' : '尚未解鎖'}</p></article>`;
+  }).join('') + '</div>';
+}
+function renderMetrics(stats, balanceLabel) {
+  const rows = [
+    ['初始月生活費', formatNT(stats.monthlyBudget)],
+    ['固定支出總額', formatNT(stats.fixedTotal)],
+    ['基本生活費總額', formatNT(stats.livingTotal)],
+    ['事件額外支出', formatNT(stats.eventExpense)],
+    ['意外收入', formatNT(stats.eventIncome)],
+    ['總收入', formatNT(stats.totalIncome)],
+    ['總支出', formatNT(stats.totalExpense)],
+    [balanceLabel || '最終餘額', formatNT(stats.finalBalance)],
+    ['儲蓄目標達成率', stats.savingsRate + '%'],
+    ['最大支出分類', maxCategoryText(stats)]
+  ];
+  return '<dl class="metrics">' + rows.map(row => `<div><dt>${row[0]}</dt><dd>${esc(row[1])}</dd></div>`).join('') + '</dl>';
+}
+function topbar(title, backScreen, backLabel) {
+  return `<header class="topbar"><button type="button" class="btn btn-ghost" data-action="go" data-screen="${backScreen}">${esc(backLabel || '返回')}</button><strong>${esc(title)}</strong></header>`;
+}
+function renderHome() {
+  const game = state.currentGame;
+  let extra = '';
+  if (game && game.status === 'playing') extra = `<button type="button" class="btn btn-mint" data-action="continue">繼續第 ${game.round} 回合</button>`;
+  else if (game && game.status === 'finished') extra = '<button type="button" class="btn btn-mint" data-action="continue">查看上次結算</button>';
+  return `<section class="hero card"><p class="eyebrow">30 天 · 10 回合 · 大約 5 分鐘</p><h1>月底生存挑戰</h1><p class="lead">生活費不是花完才發現不夠。先在這 30 天裡做選擇，看看餘額、快樂、體力和壓力會變成什麼樣子。</p><div class="btn-row"><button type="button" class="btn btn-primary" data-action="go" data-screen="setup">開始挑戰</button>${extra}<button type="button" class="btn btn-secondary" data-action="go" data-screen="history">歷史紀錄</button><button type="button" class="btn btn-secondary" data-action="go" data-screen="help">玩法說明</button></div></section><section class="card"><h2>成就徽章</h2><p class="muted">這裡留的是這個瀏覽器曾經解鎖過的徽章。</p>${renderBadgeGrid(state.unlocked)}</section><p><button type="button" class="btn btn-ghost" data-action="go" data-screen="devlog">開發紀錄</button></p>`;
+}
+function renderHelp() {
+  return `${topbar('玩法說明', 'home', '回首頁')}<section class="card stack"><p>一局把 30 天分成 10 個回合，每回合 3 天。開局先扣一次固定支出，之後每回合自動扣 3 天基本生活費，再翻開一張預先抽好的命運卡。</p><p>每張卡有 2 到 3 個選項。選了就會立刻改餘額、快樂、體力和壓力，而且同一張卡不能結算第二次。翻開也不會重抽。</p><p>餘額可以變成負數，畫面上會出現財務警告。遊戲不會自動借錢或補生活費，你仍然可以走完剩下的回合。</p><p>社交達人只計算分類為「社交娛樂」的選項。婉拒、留在宿舍或改去念書不算。</p><p>月底會依餘額、儲蓄目標和快樂值給出一種結局，並用交易紀錄畫出支出比例和餘額變化。完成的挑戰會留在這個瀏覽器，最多 20 局。</p><p>這是可以重來的情境模擬，不是你的真實帳戶，也不預測下個月一定會發生什麼。</p></section>`;
+}
+function renderDevlog() {
+  const items = DEVLOG.length ? DEVLOG.map(item => `<article class="card"><p class="eyebrow">${esc(item.phase)}</p><h2>${esc(item.title)}</h2><p><strong>發現的問題</strong><br>${esc(item.problem)}</p><p><strong>修改</strong><br>${esc(item.change)}</p><p><strong>驗證</strong><br>${esc(item.check)}</p></article>`).join('') : '<article class="card"><p>功能已經接上。這裡只會在實際測試之後補上發現的問題、修改與驗證結果，不會先把還沒驗過的項目寫成已完成。</p></article>';
+  return `${topbar('開發紀錄', 'home', '回首頁')}<div class="stack">${items}</div>`;
+}
+function renderSetup() {
+  const draft = state.draft;
+  const result = validateSettings(draft);
+  const presets = [6000, 9000, 12000];
+  const field = (id, key, label, help) => `<label class="field" for="${id}"><span>${label}</span><input class="num" id="${id}" data-field="${key}" inputmode="numeric" autocomplete="off" value="${esc(draft[key])}" aria-invalid="${result.errors[key] ? 'true' : 'false'}"><small class="help">${help}</small>${result.errors[key] ? `<small class="err">${esc(result.errors[key])}</small>` : ''}</label>`;
+  let preview = '<p class="muted">金額都正確之後，這裡會顯示預算預覽。</p>';
+  if (result.ok) {
+    const p = budgetPreview(result.value);
+    const warn = p.beforeEvents < result.value.savingsGoal ? '<p class="warn">就算這 30 天沒有額外消費，預估餘額仍低於儲蓄目標。</p>' : '';
+    preview = `<dl class="metrics"><div><dt>起始餘額</dt><dd>${formatNT(p.disposable)}</dd></div><div><dt>30 天基本生活費</dt><dd>${formatNT(p.living30)}</dd></div><div><dt>事件前預估餘額</dt><dd class="${p.beforeEvents < 0 ? 'minus' : ''}">${formatNT(p.beforeEvents)}</dd></div><div><dt>儲蓄目標</dt><dd>${formatNT(result.value.savingsGoal)}</dd></div></dl>${warn}<p class="muted">起始餘額是月生活費減掉固定支出。固定支出只在開局扣一次。</p>`;
+  }
+  const playing = state.currentGame && state.currentGame.status === 'playing' ? `<p class="warn">你有一局進行到第 ${state.currentGame.round} 回合。開始新挑戰會覆蓋它，已完成的歷史不會被刪掉。</p>` : '';
+  return `${topbar('角色與預算', 'home', '回首頁')}<div class="stack"><section class="card">${playing}<label class="field" for="field-nickname"><span>角色暱稱</span><input id="field-nickname" data-field="nickname" type="text" maxlength="16" value="${esc(draft.nickname)}" placeholder="月底求生者">${result.errors.nickname ? `<small class="err">${esc(result.errors.nickname)}</small>` : '<small class="help">留空的話會用「月底求生者」。</small>'}</label><p><strong>選擇角色</strong></p><div class="avatar-grid">${AVATARS.map(a => `<button type="button" class="avatar-btn" data-action="avatar" data-id="${a.id}" aria-pressed="${draft.avatar === a.id ? 'true' : 'false'}">${avatarSVG(a.id, 'normal')}<strong>${esc(a.name)}</strong><br><span class="muted">${esc(a.bio)}</span></button>`).join('')}</div></section><section class="card"><h2>這個月的預算</h2><p><strong>每月生活費</strong></p><div class="chips">${presets.map(n => `<button type="button" class="chip" data-action="preset" data-value="${n}" aria-pressed="${String(draft.monthlyBudget).trim() === String(n) ? 'true' : 'false'}">${formatNT(n)}</button>`).join('')}</div>${field('field-monthly', 'monthlyBudget', '月生活費，也可自行輸入', '1～100,000 的整數')}${field('field-fixed', 'fixedExpenses', '每月固定支出', '房租、電話費、交通月票等合計，0 到月生活費')}${field('field-daily', 'dailyLiving', '每日基本生活費', '每回合自動扣 3 天，0～2,000 的整數')}${field('field-goal', 'savingsGoal', '月底儲蓄目標', '0 到月生活費的整數')}</section><section class="card" id="preview-card"><h2>預算預覽</h2>${preview}<button type="button" class="btn btn-primary" id="start-btn" data-action="start" ${result.ok ? '' : 'disabled'}>開始這 30 天</button></section></div>`;
+}
+function dayDots(game) {
+  let html = '<div class="dots" aria-label="十個回合的進度">';
+  for (let i = 1; i <= 10; i++) {
+    const done = i < game.round || (i === game.round && game.roundProgress.choiceIndex !== null);
+    const cls = done ? 'on' : i === game.round ? 'now' : '';
+    html += `<i class="${cls}"></i>`;
+  }
+  return html + '</div>';
+}
+function statBar(label, value, cls) {
+  return `<div class="status-line"><span>${label}</span><span>${value} / 100</span></div><div class="bar ${cls}" role="meter" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="100" aria-label="${label}"><span style="width:${value}%"></span></div>`;
+}
+function floatMarkup(amount) {
+  if (!amount) return '<span class="floater">金錢不變</span>';
+  return `<span class="floater ${moneyClass(amount)}">${formatSignedNT(amount)}</span>`;
+}
+function optionButton(option, index) {
+  return `<button type="button" class="choice" data-action="choose" data-index="${index}"><strong>${esc(option.label)}</strong><small>${formatSignedNT(option.money)} · 快樂 ${signed(option.happiness)} · 體力 ${signed(option.energy)} · 壓力 ${signed(option.stress)} · ${esc(option.category)}</small></button>`;
+}
+function txWhen(t) {
+  if (t.round === 0) return '開局';
+  if (t.dayStart && t.dayEnd) return '回合 ' + t.round + ' · 第 ' + t.dayStart + '–' + t.dayEnd + ' 天';
+  return '回合 ' + t.round;
+}
+function renderRoundResult(game) {
+  if (game.roundProgress.choiceIndex === null) return '';
+  const rows = game.transactions.filter(t => t.round === game.round);
+  const eventTx = rows.filter(t => t.kind === 'event').slice(-1)[0];
+  let changes = '';
+  if (eventTx && eventTx.statBefore && eventTx.statAfter) {
+    const before = eventTx.balanceBefore;
+    const after = before + eventTx.amount;
+    changes = `<p>餘額 ${formatNT(before)} → ${formatNT(after)}（${formatSignedNT(eventTx.amount)}）</p><p>快樂 ${eventTx.statBefore.happiness} → ${eventTx.statAfter.happiness}（${signed(eventTx.statAfter.happiness - eventTx.statBefore.happiness)}） · 體力 ${eventTx.statBefore.energy} → ${eventTx.statAfter.energy}（${signed(eventTx.statAfter.energy - eventTx.statBefore.energy)}） · 壓力 ${eventTx.statBefore.stress} → ${eventTx.statAfter.stress}（${signed(eventTx.statAfter.stress - eventTx.statBefore.stress)}）</p>`;
+  }
+  const list = rows.map(t => `<p>${esc(txWhen(t))} · ${esc(t.name)} · ${esc(t.category)} · <strong class="${moneyClass(t.amount)}">${formatSignedNT(t.amount)}</strong></p>`).join('');
+  return `<section class="card"><h2>這一回合的結果</h2>${eventTx ? `<p>${esc(eventTx.result || '')}</p>` : ''}${changes}<h3>本回合明細</h3>${list}<button type="button" class="btn btn-primary" id="next-btn" data-action="next">${game.round >= 10 ? '查看月底結算' : '進入下一回合'}</button></section>`;
+}
+function renderGame() {
+  const game = state.currentGame;
+  const stats = computeStats(game);
+  const days = roundDays(game.round);
+  const mood = moodOf(stats.finalBalance, game.happiness, game.energy, game.stress);
+  const avatar = AVATARS.find(a => a.id === game.settings.avatar) || AVATARS[0];
+  let floatHtml = '';
+  if (fx.float) { floatHtml = floatMarkup(fx.float.amount); fx.float = null; }
+  const living = game.transactions.find(t => t.kind === 'living' && t.round === game.round);
+  const livingText = living ? '本回合已扣除基本生活費 ' + formatNT(Math.abs(living.amount)) + '。重新整理不會再扣一次。' : '本回合沒有基本生活費。';
+  const event = eventById(game.events[game.round - 1]);
+  let card = '<section class="card"><p class="warn">這張事件卡找不到了。請放棄這局並重新開始。</p></section>';
+  let choices = '';
+  if (event && !game.roundProgress.revealed) {
+    card = `<button type="button" class="card-back" id="flip-btn" data-action="flip"><span class="eyebrow">第 ${game.round} / 10 張</span><span class="back-mark">？</span><strong style="display:block;font-size:28px">命運卡</strong><span>點這裡翻開。這張卡在開局時就抽好了，再點一次也不會重抽。</span></button>`;
+  } else if (event) {
+    const flipped = fx.animateFlip ? '' : ' flipped';
+    card = `<div class="fate-scene"><div class="fate-inner${flipped}" id="fate-inner"><div class="fate-face fate-back" aria-hidden="true"><strong>命運卡</strong></div><div class="fate-face fate-front"><p class="eyebrow">${esc(event.icon)} ${esc(event.category)}</p><h2>${esc(event.name)}</h2><p>${esc(event.desc)}</p></div></div></div>`;
+    if (game.roundProgress.choiceIndex === null && !fx.hideOptions) choices = `<section class="card"><h2>你要怎麼做？</h2>${event.options.map(optionButton).join('')}</section>`;
+    else if (game.roundProgress.choiceIndex === null) choices = '<p class="muted">卡片翻開後就可以選擇。</p>';
+  }
+  const warning = stats.finalBalance < 0 ? '<p class="warn" id="debt-warning">財務警告：餘額已經是負數。後面的回合仍會繼續，遊戲不會自動補錢。</p>' : '';
+  return `${topbar('第 ' + game.round + ' / 10 回合', 'home', '回首頁')}<div class="game-grid"><section class="card"><p class="muted" id="round-label">第 ${days.start}–${days.end} 天</p>${dayDots(game)}<div style="display:flex;justify-content:center">${avatarSVG(game.settings.avatar, mood)}</div><p><strong>${esc(game.settings.nickname)}</strong> · ${esc(avatar.name)}</p><p id="mood-label">表情：${esc(MOOD_LABEL[mood])}</p><div class="money-wrap">${floatHtml}<p class="muted">目前餘額</p><p id="balance-value" class="money${stats.finalBalance < 0 ? ' bad' : ''}">${formatNT(stats.finalBalance)}</p></div>${statBar('快樂', game.happiness, 'happy')}${statBar('體力', game.energy, 'energy')}${statBar('壓力', game.stress, 'stress')}</section><div class="stack">${warning}<p class="muted">${livingText}</p>${card}${choices}${renderRoundResult(game)}<div class="btn-row"><button type="button" class="btn btn-secondary" data-action="analysis" data-screen="game">財務分析</button><button type="button" class="btn btn-danger" data-action="abandon">放棄這局</button></div></div></div>`;
+}
+function donutChart(slices) {
+  const drawn = slices.filter(s => s.amount > 0);
+  const total = drawn.reduce((sum, s) => sum + s.amount, 0);
+  if (!total) return '<div class="empty-chart" role="img" aria-label="目前沒有支出">這個範圍還沒有支出，所以圓環圖沒有區塊。</div>';
+  const r = 70;
+  const c = 2 * Math.PI * r;
+  let offset = 0;
+  const circles = drawn.map(s => {
+    const len = s.amount / total * c;
+    const color = CATEGORY_COLORS[s.name] || '#24435B';
+    if (drawn.length === 1) return `<circle cx="110" cy="110" r="${r}" fill="none" stroke="${color}" stroke-width="28"></circle>`;
+    const node = `<circle cx="110" cy="110" r="${r}" fill="none" stroke="${color}" stroke-width="28" stroke-dasharray="${len} ${Math.max(c - len, 0.01)}" stroke-dashoffset="${-offset}" transform="rotate(-90 110 110)"></circle>`;
+    offset += len;
+    return node;
+  }).join('');
+  const label = drawn.map(s => s.name + ' ' + formatNT(s.amount) + ' ' + percentText(s.amount, total)).join('，');
+  return `<svg viewBox="0 0 220 220" class="donut" role="img" aria-label="支出分類圓環圖：${esc(label)}"><title>${esc(label)}</title>${circles}<circle cx="110" cy="110" r="48" fill="#FFFDF9"></circle><text x="110" y="106" text-anchor="middle" font-size="13" fill="#24435B">總支出</text><text x="110" y="126" text-anchor="middle" font-size="12" font-weight="700" fill="#24435B">${esc(formatNT(total))}</text></svg>`;
+}
+function lineChart(points, highlight) {
+  const w = 680;
+  const h = 300;
+  const pad = { l: 108, r: 16, t: 22, b: 42 };
+  const vals = points.map(p => p.value);
+  let minV = Math.min(0, ...vals);
+  let maxV = Math.max(0, ...vals);
+  if (minV === maxV) maxV = minV + 1;
+  const span = maxV - minV || 1;
+  const padV = span * 0.12;
+  const min = minV < 0 ? minV - padV : minV;
+  const max = maxV + padV;
+  const innerW = w - pad.l - pad.r;
+  const innerH = h - pad.t - pad.b;
+  const x = i => points.length === 1 ? pad.l + innerW / 2 : pad.l + innerW * i / (points.length - 1);
+  const y = v => pad.t + (max - v) / (max - min) * innerH;
+  const coords = points.map((p, i) => x(i) + ',' + y(p.value)).join(' ');
+  const dots = points.map((p, i) => {
+    const active = highlight && p.key === highlight;
+    return `<circle cx="${x(i)}" cy="${y(p.value)}" r="${active ? 6 : 4}" fill="${p.value < 0 ? '#D64545' : '#24435B'}"></circle><text x="${x(i)}" y="${h - 14}" text-anchor="middle" font-size="12" fill="#24435B">${esc(p.short)}</text>`;
+  }).join('');
+  const ticks = [maxV, 0, minV].filter((v, i, arr) => arr.indexOf(v) === i);
+  const labels = ticks.map(v => `<text x="${pad.l - 8}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="#24435B">${esc(formatNT(v))}</text>`).join('');
+  const caption = '餘額由 ' + formatNT(points[0].value) + ' 到 ' + formatNT(points[points.length - 1].value);
+  return `<svg viewBox="0 0 ${w} ${h}" class="chart" role="img" aria-label="餘額變化折線圖，${esc(caption)}"><title>${esc(caption)}</title><text x="${pad.l}" y="16" font-size="13" fill="#24435B">餘額（新臺幣）</text><line x1="${pad.l}" y1="${y(0)}" x2="${w - pad.r}" y2="${y(0)}" stroke="rgba(36,67,91,.35)" stroke-dasharray="4 4"></line><polyline points="${coords}" fill="none" stroke="#FF745C" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></polyline>${dots}${labels}</svg>`;
+}
+function balancePoints(model, stats) {
+  const points = [{ key: '0', short: '起始', label: '起始', value: stats.startBalance }];
+  model.balanceByRound.forEach((value, index) => {
+    points.push({ key: String(index + 1), short: String(index + 1), label: '第 ' + (index + 1) + ' 回合結束', value: value });
+  });
+  return points;
+}
+function expenseSlices(stats) {
+  return EXPENSE_CATEGORIES.map(name => {
+    const found = stats.categories.find(c => c.name === name);
+    return { name: name, amount: found ? found.amount : 0 };
+  });
+}
+function analysisModel() {
+  if (state.ui.analysisReturn === 'history') return state.history.find(h => h.id === state.ui.historyId) || null;
+  return state.currentGame;
+}
+function renderAnalysis() {
+  const model = analysisModel();
+  if (!model) return `${topbar('財務分析', 'home', '回首頁')}<section class="card"><p>目前沒有可以分析的挑戰。</p></section>`;
+  const full = computeStats(model);
+  const roundKey = state.ui.round || 'all';
+  let scoped = model.transactions.slice();
+  if (roundKey !== 'all') scoped = scoped.filter(t => String(t.round) === roundKey);
+  const scopedStats = computeStats({ settings: model.settings, transactions: scoped, balanceByRound: model.balanceByRound });
+  let endBalance = full.finalBalance;
+  let endLabel = model.status === 'playing' ? '目前餘額' : '最終餘額';
+  if (roundKey === '0') { endBalance = full.startBalance; endLabel = '起始餘額'; }
+  else if (roundKey !== 'all') {
+    const idx = Number(roundKey) - 1;
+    endLabel = '回合結束餘額';
+    endBalance = model.balanceByRound[idx] == null ? null : model.balanceByRound[idx];
+  }
+  const cat = state.ui.category || 'all';
+  const list = cat === 'all' ? scoped : scoped.filter(t => t.category === cat);
+  const rounds = Array.from(new Set(model.transactions.map(t => t.round))).sort((a, b) => a - b);
+  const chips = ['all'].concat(rounds.map(String)).map(key => {
+    const label = key === 'all' ? '整局' : key === '0' ? '開局' : '第 ' + key + ' 回合';
+    return `<button type="button" class="chip" data-action="filter-round" data-round="${key}" aria-pressed="${roundKey === key ? 'true' : 'false'}">${label}</button>`;
+  }).join('');
+  const slices = expenseSlices(roundKey === 'all' ? full : scopedStats);
+  const totalExpense = slices.reduce((sum, s) => sum + s.amount, 0);
+  const legend = slices.map(s => `<button type="button" data-action="filter-cat" data-cat="${esc(s.name)}" aria-pressed="${cat === s.name ? 'true' : 'false'}"><i class="swatch" style="background:${CATEGORY_COLORS[s.name]}"></i><span>${CATEGORY_ICON[s.name] || ''} ${esc(s.name)}<br><small>${formatNT(s.amount)}</small></span><strong>${percentText(s.amount, totalExpense)}</strong></button>`).join('');
+  const points = balancePoints(model, full);
+  const highlight = roundKey === 'all' ? '' : roundKey;
+  const table = '<div class="table-wrap"><table><caption class="sr-only">每回合餘額</caption><thead><tr><th>時點</th><th>餘額</th></tr></thead><tbody>' + points.map(p => `<tr class="${highlight === p.key ? 'active' : ''}"><td>${esc(p.label)}</td><td>${formatNT(p.value)}</td></tr>`).join('') + '</tbody></table></div>';
+  let listIncome = 0;
+  let listExpense = 0;
+  list.forEach(t => { if (t.amount > 0) listIncome += t.amount; if (t.amount < 0) listExpense += -t.amount; });
+  const txHtml = list.length ? list.map(t => `<article class="tx"><div><p class="tx-meta">${esc(txWhen(t))}</p><h3>${esc(t.name)}</h3><p>${CATEGORY_ICON[t.category] || ''} ${esc(t.category)}</p></div><strong class="${moneyClass(t.amount)}">${formatSignedNT(t.amount)}</strong></article>`).join('') : '<p>這個範圍沒有符合的交易。</p>';
+  const summary = `<div class="summary-grid"><article class="summary"><p class="muted">${roundKey === 'all' ? '總收入' : '這段收入'}</p><strong class="plus">${formatNT(roundKey === 'all' ? full.totalIncome : scopedStats.totalIncome)}</strong></article><article class="summary"><p class="muted">${roundKey === 'all' ? '總支出' : '這段支出'}</p><strong class="minus">${formatNT(roundKey === 'all' ? full.totalExpense : scopedStats.totalExpense)}</strong></article><article class="summary"><p class="muted">${endLabel}</p><strong class="${endBalance < 0 ? 'minus' : ''}">${endBalance == null ? '尚未結算' : formatNT(endBalance)}</strong></article></div>`;
+  const metrics = roundKey === 'all' ? renderMetrics(full, endLabel) : `<p class="muted">下面是這個回合範圍的收支。整局的達成率與總額，請切回「整局」。</p><dl class="metrics"><div><dt>這段收入</dt><dd>${formatNT(scopedStats.totalIncome)}</dd></div><div><dt>這段支出</dt><dd>${formatNT(scopedStats.totalExpense)}</dd></div><div><dt>${endLabel}</dt><dd>${endBalance == null ? '尚未結算' : formatNT(endBalance)}</dd></div></dl>`;
+  const back = state.ui.analysisReturn || 'home';
+  const backLabel = back === 'game' ? '返回遊戲' : back === 'ending' ? '返回結算' : back === 'history' ? '返回歷史' : '回首頁';
+  let endingBlock = '';
+  if (model.endingId && ENDINGS[model.endingId]) {
+    const ending = ENDINGS[model.endingId];
+    endingBlock = `<section class="card"><p class="eyebrow">${ending.emoji} ${esc(ending.name)}</p><p>${esc(behaviorText(full))}</p><p>${esc(goalText(full, model.settings))}</p><p><strong>改善建議</strong><br>${esc(buildSuggestion(model.endingId, full, model.settings))}</p>${renderBadgeGrid(evaluateAchievements(model, full))}</section>`;
+  }
+  const remove = state.ui.analysisReturn === 'history' ? `<button type="button" class="btn btn-danger" data-action="history-delete" data-id="${esc(model.id)}">刪除這筆紀錄</button>` : '';
+  return `${topbar((model.settings.nickname || '挑戰') + '的財務分析', back, backLabel)}<div class="stack">${endingBlock}<section class="card"><h2>要看哪一段</h2><div class="chip-scroll">${chips}</div><p class="muted">${cat === 'all' ? '點圓環圖旁的分類，可以只看該類交易。再點一次會回到全部。' : '清單目前只顯示「' + esc(cat) + '」。圓環圖仍是這段期間的全部分類。'}</p></section><section class="card"><h2>收支摘要</h2>${summary}</section><div class="analysis-grid"><section class="card"><h2>支出分類</h2>${donutChart(slices)}<div class="legend">${legend}</div></section><section class="card"><h2>餘額變化</h2>${lineChart(points, highlight)}<p class="muted">折線的點是起始餘額，以及每個已經做完選擇的回合。進行中、還沒選完的回合不會先畫上去。負數用紅點表示，完整金額在下方表格。</p>${table}</section></div><section class="card"><h2>${roundKey === 'all' ? '整局統計' : '這一段的數字'}</h2>${metrics}</section><section class="card"><h2>交易紀錄</h2><div class="row-gap">${txHtml}</div><p class="muted">目前清單收入 ${formatNT(listIncome)}，支出 ${formatNT(listExpense)}。這些金額來自上方同一批交易。</p>${remove}</section></div>`;
+}
+function renderEnding() {
+  const game = state.currentGame;
+  if (!game || game.status !== 'finished') return `${topbar('月底結算', 'home', '回首頁')}<section class="card"><p>這局還沒結算。</p></section>`;
+  const stats = computeStats(game);
+  const ending = ENDINGS[game.endingId] || ENDINGS.close;
+  const achievements = evaluateAchievements(game, stats);
+  return `${topbar('月底結算', 'home', '回首頁')}<div class="stack"><section class="hero card"><p class="eyebrow">30 天結束</p><p style="font-size:64px;margin:0">${ending.emoji}</p><h1 id="ending-name">${esc(ending.name)}</h1><p class="lead">${esc(ending.blurb)}</p><p id="balance-value" class="money${stats.finalBalance < 0 ? ' bad' : ''}">${formatNT(stats.finalBalance)}</p><p>${esc(goalText(stats, game.settings))}</p></section><section class="card"><h2>消費行為</h2><p>${esc(behaviorText(stats))}</p><h2>一個可以馬上用的調整</h2><p>${esc(buildSuggestion(game.endingId, stats, game.settings))}</p></section><section class="card"><h2>本局成就</h2>${renderBadgeGrid(achievements)}</section><section class="card"><h2>這局的帳</h2>${renderMetrics(stats)}<div class="btn-row"><button type="button" class="btn btn-secondary" data-action="analysis" data-screen="ending">查看圖表</button><button type="button" class="btn btn-primary" data-action="again">再玩一次</button><button type="button" class="btn btn-secondary" data-action="go" data-screen="setup">調整設定</button><button type="button" class="btn btn-secondary" data-action="go" data-screen="history">歷史紀錄</button></div></section></div>`;
+}
+function renderHistory() {
+  let compare = '<section class="card"><h2>最近兩局比較</h2><p>再完成一局，就能比較最近兩次的最終餘額、總支出和儲蓄目標。</p></section>';
+  if (state.history.length >= 2) {
+    const a = state.history[0];
+    const b = state.history[1];
+    const delta = a.finalBalance - b.finalBalance;
+    const side = (item, title) => `<article class="summary"><p class="eyebrow">${title}</p><h3>${esc(item.settings.nickname)}</h3><p class="muted">${esc(formatTime(item.finishedAt))}</p><p>${ENDINGS[item.endingId].emoji} ${esc(ENDINGS[item.endingId].name)}</p><p>最終餘額 <strong class="${moneyClass(item.finalBalance)}">${formatNT(item.finalBalance)}</strong></p><p>總支出 ${formatNT(item.totalExpense)}</p><p>儲蓄目標 ${item.goalMet ? '已達成' : '尚未達成'}，達成率 ${item.savingsRate}%</p></article>`;
+    compare = `<section class="card"><h2>最近兩局比較</h2><p>${delta === 0 ? '最近兩局的最終餘額相同。' : '較新的一局，最終餘額比前一局' + (delta > 0 ? '多 ' : '少 ') + formatNT(Math.abs(delta)) + '。'}</p><div class="compare">${side(a, '最近一局')}${side(b, '前一局')}</div></section>`;
+  }
+  const list = state.history.length ? state.history.map(item => `<article class="hist"><div><p class="tx-meta">${esc(formatTime(item.finishedAt))}</p><h3>${esc(item.settings.nickname)} · ${ENDINGS[item.endingId].emoji} ${esc(ENDINGS[item.endingId].name)}</h3><p>最終餘額 <strong class="${moneyClass(item.finalBalance)}">${formatNT(item.finalBalance)}</strong></p><p>成就 ${item.achievements.length} 個</p></div><div class="row-gap"><button type="button" class="btn btn-secondary" data-action="history-open" data-id="${esc(item.id)}">查看</button><button type="button" class="btn btn-danger" data-action="history-delete" data-id="${esc(item.id)}">刪除</button></div></article>`).join('') : '<p>還沒有完成的挑戰。打完 10 個回合後，結算會自動出現在這裡。</p>';
+  const clear = state.history.length ? '<button type="button" class="btn btn-danger" data-action="history-clear">清除全部歷史</button>' : '';
+  return `${topbar('歷史紀錄', 'home', '回首頁')}<div class="stack">${compare}<section class="card"><h2>最近 ${state.history.length} 局</h2><div class="row-gap">${list}</div>${clear}</section></div>`;
+}
+function render(opts) {
+  const keep = !!(opts && opts.keep);
+  const y = keep ? window.scrollY : 0;
+  let focus = null;
+  if (keep && document.activeElement && document.activeElement.id) {
+    focus = { id: document.activeElement.id, start: document.activeElement.selectionStart, end: document.activeElement.selectionEnd };
+  }
+  stabilizeUi(state);
+  const notice = sessionNotice ? `<div class="banner">${esc(sessionNotice)} <button type="button" class="btn btn-ghost" data-action="dismiss-notice">知道了</button></div>` : '';
+  let body = '';
+  if (state.ui.screen === 'help') body = renderHelp();
+  else if (state.ui.screen === 'devlog') body = renderDevlog();
+  else if (state.ui.screen === 'setup') body = renderSetup();
+  else if (state.ui.screen === 'game') body = renderGame();
+  else if (state.ui.screen === 'analysis') body = renderAnalysis();
+  else if (state.ui.screen === 'ending') body = renderEnding();
+  else if (state.ui.screen === 'history') body = renderHistory();
+  else body = renderHome();
+  app.innerHTML = `<div class="wrap">${notice}${body}<p class="muted footer-note">情境模擬，不是真實帳戶。資料只存在這個瀏覽器，金額為新臺幣。</p></div>`;
+  if (fx.animateFlip) {
+    const card = document.getElementById('fate-inner');
+    fx.animateFlip = false;
+    if (card) requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('flipped')));
+  }
+  if (focus) {
+    const el = document.getElementById(focus.id);
+    if (el) {
+      el.focus();
+      if (typeof focus.start === 'number' && el.setSelectionRange) {
+        try { el.setSelectionRange(focus.start, focus.end); } catch (err) {}
+      }
+    }
+  }
+  window.scrollTo(0, keep ? y : 0);
+}
+function beginGame(settings) {
+  resetMotion();
+  state.settings = settings;
+  state.draft = draftFromSettings(settings);
+  state.currentGame = createGame(settings);
+  state.ui.screen = 'game';
+  state.ui.historyId = null;
+  state.ui.category = 'all';
+  state.ui.round = 'all';
+  const living = state.currentGame.transactions.find(t => t.kind === 'living' && t.round === 1);
+  fx.float = living ? { amount: living.amount } : null;
+  saveState();
+  say('挑戰開始。第 1 到第 3 天，餘額 ' + formatNT(computeStats(state.currentGame).finalBalance) + '。');
+  render();
+}
+function tryStart() {
+  const result = validateSettings(state.draft);
+  if (!result.ok) { render({ keep: true }); return; }
+  const go = () => beginGame(result.value);
+  if (state.currentGame && state.currentGame.status === 'playing') {
+    askConfirm('覆蓋進行中的挑戰？', '目前這局還沒結束。開始新挑戰後，未完成的進度會被換掉。已結束的歷史紀錄仍會保留。', '開始新挑戰', '取消').then(ok => { if (ok) go(); });
+  } else go();
+}
+function playAgain() {
+  const result = validateSettings(state.settings);
+  if (!result.ok) { state.ui.screen = 'setup'; saveState(); render(); return; }
+  beginGame(result.value);
+}
+function doFlip() {
+  const game = state.currentGame;
+  if (!game) return;
+  const res = revealEvent(game);
+  if (!res.ok) return;
+  saveState();
+  say('命運卡已翻開。');
+  if (prefersReducedMotion()) { fx.animateFlip = false; fx.hideOptions = false; render(); return; }
+  fx.animateFlip = true;
+  fx.hideOptions = true;
+  const token = ++fx.flipToken;
+  render();
+  window.setTimeout(() => {
+    if (token !== fx.flipToken) return;
+    fx.hideOptions = false;
+    if (state.ui.screen === 'game') render({ keep: true });
+  }, 640);
+}
+function doChoose(index) {
+  const game = state.currentGame;
+  if (!game || fx.hideOptions) return;
+  const res = applyChoice(game, index);
+  if (!res.ok) return;
+  const fresh = newlyUnlocked(game);
+  saveState();
+  fx.float = { amount: res.option.money };
+  say('你選擇' + res.option.label + '。餘額 ' + formatNT(computeStats(game).finalBalance) + '。');
+  enqueueBadges(fresh);
+  render();
+}
+function doNext() {
+  const game = state.currentGame;
+  if (!game) return;
+  if (game.round >= 10 && game.roundProgress.choiceIndex !== null) { doFinalize(); return; }
+  const res = advanceRound(game);
+  if (!res.ok) return;
+  resetMotion();
+  saveState();
+  if (res.livingCost) fx.float = { amount: -res.livingCost };
+  const days = roundDays(game.round);
+  say('進入第 ' + game.round + ' 回合，第 ' + days.start + ' 到 ' + days.end + ' 天。');
+  render();
+}
+function doFinalize() {
+  const game = state.currentGame;
+  if (!game) return;
+  if (game.status === 'finished') { state.ui.screen = 'ending'; saveState(); render(); return; }
+  if (game.round < 10 || game.balanceByRound.length < 10 || game.roundProgress.choiceIndex === null) return;
+  game.status = 'finished';
+  game.finishedAt = new Date().toISOString();
+  const stats = computeStats(game);
+  const endingId = determineEnding(game, stats);
+  game.endingId = endingId;
+  const achievements = evaluateAchievements(game, stats);
+  const fresh = achievements.filter(id => state.unlocked.indexOf(id) === -1);
+  achievements.forEach(id => { if (state.unlocked.indexOf(id) === -1) state.unlocked.push(id); });
+  state.history = pushHistory(state.history, makeHistoryRecord(game, stats, endingId, achievements));
+  state.ui.screen = 'ending';
+  state.ui.historyId = null;
+  resetMotion();
+  saveState();
+  say('月底結算：' + ENDINGS[endingId].name + '。最終餘額 ' + formatNT(stats.finalBalance) + '。');
+  enqueueBadges(fresh);
+  render();
+}
+function openAnalysis(from) {
+  state.ui.analysisReturn = from;
+  if (from !== 'history') state.ui.historyId = null;
+  state.ui.category = 'all';
+  state.ui.round = 'all';
+  state.ui.screen = 'analysis';
+  saveState();
+  render();
+}
+function openHistory(id) {
+  state.ui.historyId = id;
+  state.ui.analysisReturn = 'history';
+  state.ui.category = 'all';
+  state.ui.round = 'all';
+  state.ui.screen = 'analysis';
+  saveState();
+  render();
+}
+function deleteHistory(id) {
+  const item = state.history.find(h => h.id === id);
+  if (!item) return;
+  askConfirm('刪除這筆紀錄？', item.settings.nickname + ' 在 ' + formatTime(item.finishedAt) + ' 的挑戰會從這個瀏覽器移除。', '刪除', '取消').then(ok => {
+    if (!ok) return;
+    state.history = state.history.filter(h => h.id !== id);
+    if (state.ui.historyId === id) { state.ui.historyId = null; state.ui.screen = 'history'; }
+    saveState();
+    render();
+  });
+}
+function clearHistory() {
+  askConfirm('清除全部歷史紀錄？', '這會刪掉這個瀏覽器裡已完成的挑戰紀錄，且無法復原。成就徽章和進行中的遊戲會保留。', '全部清除', '取消').then(ok => {
+    if (!ok) return;
+    state.history = [];
+    state.ui.historyId = null;
+    if (state.ui.screen === 'analysis' && state.ui.analysisReturn === 'history') state.ui.screen = 'history';
+    saveState();
+    render();
+  });
+}
+function onClick(e) {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled || !app.contains(el)) return;
+  const action = el.dataset.action;
+  if (action === 'go') { state.ui.screen = el.dataset.screen; saveState(); render(); }
+  else if (action === 'preset') { state.draft.monthlyBudget = el.dataset.value; saveState(); render(); }
+  else if (action === 'avatar') { state.draft.avatar = el.dataset.id; saveState(); render(); }
+  else if (action === 'start') tryStart();
+  else if (action === 'continue') { state.ui.screen = state.currentGame && state.currentGame.status === 'finished' ? 'ending' : 'game'; saveState(); render(); }
+  else if (action === 'flip') doFlip();
+  else if (action === 'choose') doChoose(Number(el.dataset.index));
+  else if (action === 'next') doNext();
+  else if (action === 'analysis') openAnalysis(el.dataset.screen || 'game');
+  else if (action === 'filter-cat') { state.ui.category = state.ui.category === el.dataset.cat ? 'all' : el.dataset.cat; saveState(); render({ keep: true }); }
+  else if (action === 'filter-round') { state.ui.round = el.dataset.round; saveState(); render({ keep: true }); }
+  else if (action === 'history-open') openHistory(el.dataset.id);
+  else if (action === 'history-delete') deleteHistory(el.dataset.id);
+  else if (action === 'history-clear') clearHistory();
+  else if (action === 'again') playAgain();
+  else if (action === 'abandon') {
+    askConfirm('放棄這局？', '這局還沒結束，放棄後不會寫進歷史紀錄。已經解鎖的徽章會留著。', '放棄', '繼續玩').then(ok => {
+      if (!ok) return;
+      resetMotion();
+      state.currentGame = null;
+      state.ui.screen = 'home';
+      saveState();
+      render();
+    });
+  } else if (action === 'dismiss-notice') { sessionNotice = ''; render(); }
+}
+function onInput(e) {
+  const field = e.target.getAttribute('data-field');
+  if (!field) return;
+  state.draft[field] = e.target.value;
+  saveState();
+  render({ keep: true });
+}
+function onKey(e) {
+  if (e.key === 'Enter' && state.ui.screen === 'setup' && e.target.tagName === 'INPUT') {
+    e.preventDefault();
+    tryStart();
+  }
+}
+function boot() {
+  if (!document.getElementById('live')) {
+    const live = document.createElement('div');
+    live.id = 'live';
+    live.className = 'sr-only';
+    live.setAttribute('aria-live', 'polite');
+    document.body.appendChild(live);
+  }
+  const loaded = loadStored();
+  state = loaded.state;
+  sessionNotice = loaded.notice || '';
+  if (sessionNotice) saveState();
+  app.addEventListener('click', onClick);
+  app.addEventListener('input', onInput);
+  app.addEventListener('keydown', onKey);
+  render();
+}
+boot();
+
+</script>
+</body>
+</html>
